@@ -1,4 +1,4 @@
-import db.db
+import db;
 
 
 public class main {
