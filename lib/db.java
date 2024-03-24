@@ -1,22 +1,102 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class db {
-    public static void main(String[] args) {
-        try (Connection connection = DriverManager.getConnection("jdbc:derby:mydatabase");
-             Statement statement = connection.createStatement()) {
 
-            // Insert data into the database
-            statement.executeUpdate("INSERT INTO mytable(id, name) VALUES (1, 'John')");
+    public static void createTables(Connection conn) throws SQLException {
+        String sql;
 
-            // Retrieve data from the database
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM mytable");
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                System.out.println("ID: " + id + ", Name: " + name);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        // Table 1: exam_incharges
+        sql = "CREATE TABLE exam_incharges (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "contact_information VARCHAR(255)," +
+                "designation VARCHAR(255)" +
+                ")";
+        Statement statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+
+        // Table 2: computer_students (and similar for other branches)
+        sql = "CREATE TABLE computer_students (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "roll_no VARCHAR(255) NOT NULL," +
+                "semester INT," +
+                "year INT," +
+                "result_sem1 VARCHAR(255)," +
+                "result_sem2 VARCHAR(255)" +
+                ")";
+        statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+
+        sql = "CREATE TABLE mechanical_students (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "roll_no VARCHAR(255) NOT NULL," +
+                "semester INT," +
+                "year INT," +
+                "result_sem1 VARCHAR(255)," +
+                "result_sem2 VARCHAR(255)" +
+                ")";
+        statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+        sql = "CREATE TABLE civil_students (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "roll_no VARCHAR(255) NOT NULL," +
+                "semester INT," +
+                "year INT," +
+                "result_sem1 VARCHAR(255)," +
+                "result_sem2 VARCHAR(255)" +
+                ")";
+        statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+        sql = "CREATE TABLE computer_students (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "roll_no VARCHAR(255) NOT NULL," +
+                "semester INT," +
+                "year INT," +
+                "result_sem1 VARCHAR(255)," +
+                "result_sem2 VARCHAR(255)" +
+                ")";
+        statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+        sql = "CREATE TABLE electronics_students (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "roll_no VARCHAR(255) NOT NULL," +
+                "semester INT," +
+                "year INT," +
+                "result_sem1 VARCHAR(255)," +
+                "result_sem2 VARCHAR(255)" +
+                ")";
+        statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+        sql = "CREATE TABLE MLT_students (" +
+                "id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1)," +
+                "name VARCHAR(255) NOT NULL," +
+                "roll_no VARCHAR(255) NOT NULL," +
+                "semester INT," +
+                "year INT," +
+                "result_sem1 VARCHAR(255)," +
+                "result_sem2 VARCHAR(255)" +
+                ")";
+        statement = conn.createStatement();
+        statement.execute(sql);
+        statement.close();
+
+
+        // Create tables for other branches following the same pattern
+
+        // ...
     }
 }

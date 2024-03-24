@@ -17,6 +17,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <a href="/about" className="hover:underline">
             About Us
           </a>
+          <a href="/forms" className="hover:underline">
+            Forms
+          </a>
           <a href="/announcements" className="hover:underline">
             Announcements
           </a>
