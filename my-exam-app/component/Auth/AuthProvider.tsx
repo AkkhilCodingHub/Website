@@ -3,6 +3,7 @@ import React, { createContext, useState, useEffect } from "react";
 interface AuthContextValue {
   user: { name?: string } | null;
   setUser: (user: { name?: string } | null) => void;
+  
 }
 
 export const AuthContext = createContext<AuthContextValue>({
@@ -10,9 +11,9 @@ export const AuthContext = createContext<AuthContextValue>({
   setUser: () => {},
 });
 
-const AuthProvider: React.FC = ({ children }) => {
+const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [user, setUser] = useState<AuthContextValue["user"]>(null);
-
+  
   useEffect(() => {
     // Check for existing login on component mount
     const storedUser = localStorage.getItem("user"); // Replace with secure storage
@@ -20,7 +21,7 @@ const AuthProvider: React.FC = ({ children }) => {
       setUser(JSON.parse(storedUser));
     }
   }, []);
-
+  
   return (
     <AuthContext.Provider value={{ user, setUser }}>
       {children}
