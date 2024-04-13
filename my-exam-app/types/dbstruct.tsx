@@ -1,9 +1,14 @@
-import { connectToDb } from "../services/mongo"; // Assuming mongo.js handles database connection
+import { changedb } from "../services/mongo"; // Assuming mongo.js handles database connection using connectDb
 import { Admin, Teacher } from "./admin"; // Import admin and teacher interfaces
+import mongoose from 'mongoose'; // Import Mongoose directly (assuming separate import)
 
+// Function to fetch all admins from database
 export const login = async (name: string, pin: string): Promise<{ success: boolean; message?: string; admin?: Admin }> => {
-  const db = await connectToDb();
-  const admin = await db.collection<Admin>("admins").findOne({ name, pin });
+  const connection = await changedb(); // Use the correct function `connectDb`
+  const db = connection.db('your_database_name'); // Access database instance using connection
+
+  const adminCollection = db.collection<Admin>("admins"); // Use generic type for collection
+  const admin = await adminCollection.findOne({ name, pin });
 
   // Check if admin exists and return appropriate response
   if (!admin) {
@@ -14,24 +19,54 @@ export const login = async (name: string, pin: string): Promise<{ success: boole
   return { success: true, admin };
 };
 
-// Function to fetch all teachers from database
-export const getTeachers = async (): Promise<Teacher[]> => {
-  const db = await connectToDb();
-  const TeacherModel = db.model<Teacher>("Teacher", /* Your Teacher schema */); // Define Teacher model
-  const teachers = await TeacherModel.find();
-  return teachers;
+const main = async () => {
+  try {
+    const connection = await changedb();
+    // ... rest of your code ...
+
+    // Mongoose schema for Teacher documents
+    const teacherSchema = new mongoose.Schema({
+      name: {
+        type: String,
+        required: true,
+        unique: true, // Ensure unique teacher names
+      },
+      pin: {
+        type: String,
+        required: true,
+      },
+      // Add additional fields as needed (e.g., email, subjects taught, etc.)
+    });
+
+    // Function to fetch all teachers from database
+    export const getTeachers = async (): Promise<Teacher[]> => {
+      const connection = await changedb();
+      const db = connection.db('your_database_name');
+      const TeacherModel = db.model<Teacher>("Teacher", teacherSchema); // Define Teacher model
+      const teachers = await TeacherModel.find();
+      return teachers;
+    };
+
+    // Function to add a new teacher to database
+    export const addTeacher = async (teacher: Teacher): Promise<void> => {
+      const connection = await changedb();
+      const db = connection.db('your_database_name');
+      const TeacherModel = db.model<Teacher>("Teacher", teacherSchema); // Define Teacher model
+      await TeacherModel.create(teacher); // Use Mongoose create method
+    };
+
+    // Function to remove a teacher from database
+    export const removeTeacher = async (teacherName: string): Promise<void> => {
+      const connection = await changedb();
+      const db = connection.db('your_database_name');
+      const TeacherModel = db.model<Teacher>("Teacher", teacherSchema); // Define Teacher model
+      await TeacherModel.deleteOne({ name: teacherName }); // Use Mongoose deleteOne method
+    };
+  } catch (error) {
+    console.error('Error connecting to MongoDB or performing operations:', error);
+  }
 };
 
-// Function to add a new teacher to database
-export const addTeacher = async (teacher: Teacher): Promise<void> => {
-  const db = await connectToDb();
-  const TeacherModel = db.model<Teacher>("Teacher", /* Your Teacher schema */); // Define Teacher model
-  await TeacherModel.create(teacher); // Use Mongoose create method
-};
+main(); // Run the main function
 
-// Function to remove a teacher from database
-export const removeTeacher = async (teacherName: string): Promise<void> => {
-  const db = await connectToDb();
-  const TeacherModel = db.model<Teacher>("Teacher", /* Your Teacher schema */); // Define Teacher model
-  await TeacherModel.deleteOne({ name: teacherName }); // Use Mongoose deleteOne method
-};
+export default mongoose.models.Teacher || mongoose.model('Teacher', teacherSchema); // Use mongoose models directly
