@@ -5,7 +5,7 @@ import mongoose from 'mongoose'; // Import Mongoose directly (assuming separate 
 // Function to fetch all admins from database
 export const login = async (name: string, pin: string): Promise<{ success: boolean; message?: string; admin?: Admin }> => {
   const connection = await changedb(); // Use the correct function `connectDb`
-  const db = connection.db('your_database_name'); // Access database instance using connection
+  const db = connection.db("Cluster0"); // Access database instance using connection
 
   const adminCollection = db.collection<Admin>("admins"); // Use generic type for collection
   const admin = await adminCollection.findOne({ name, pin });
@@ -22,8 +22,7 @@ export const login = async (name: string, pin: string): Promise<{ success: boole
 const main = async () => {
   try {
     const connection = await changedb();
-    // ... rest of your code ...
-
+    
     // Mongoose schema for Teacher documents
     const teacherSchema = new mongoose.Schema({
       name: {
@@ -41,7 +40,7 @@ const main = async () => {
     // Function to fetch all teachers from database
     export const getTeachers = async (): Promise<Teacher[]> => {
       const connection = await changedb();
-      const db = connection.db('your_database_name');
+      const db = connection.db("Cluster0");
       const TeacherModel = db.model<Teacher>("Teacher", teacherSchema); // Define Teacher model
       const teachers = await TeacherModel.find();
       return teachers;
@@ -50,7 +49,7 @@ const main = async () => {
     // Function to add a new teacher to database
     export const addTeacher = async (teacher: Teacher): Promise<void> => {
       const connection = await changedb();
-      const db = connection.db('your_database_name');
+      const db = connection.db("Cluster0");
       const TeacherModel = db.model<Teacher>("Teacher", teacherSchema); // Define Teacher model
       await TeacherModel.create(teacher); // Use Mongoose create method
     };
@@ -58,7 +57,7 @@ const main = async () => {
     // Function to remove a teacher from database
     export const removeTeacher = async (teacherName: string): Promise<void> => {
       const connection = await changedb();
-      const db = connection.db('your_database_name');
+      const db = connection.db("Cluster0");
       const TeacherModel = db.model<Teacher>("Teacher", teacherSchema); // Define Teacher model
       await TeacherModel.deleteOne({ name: teacherName }); // Use Mongoose deleteOne method
     };
