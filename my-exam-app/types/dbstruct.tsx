@@ -5,8 +5,7 @@ import mongoose from 'mongoose'; // Import Mongoose directly (assuming separate 
 // Function to fetch all admins from database
 export const login = async (name: string, pin: string): Promise<{ success: boolean; message?: string; admin?: Admin }> => {
   const connection = await changedb(); // Use the correct function `connectDb`
-  const db = connection.db("Cluster0"); // Access database instance using connection
-
+  const db = connection. ("Cluster0"); // Access database instance using connection
   const adminCollection = db.collection<Admin>("admins"); // Use generic type for collection
   const admin = await adminCollection.findOne({ name, pin });
 

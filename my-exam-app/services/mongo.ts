@@ -20,7 +20,6 @@ interface MyConnection extends mongoose.Connection {}
 
 // Function to connect to the database and return the Mongoose connection object (recommended approach - type guard)
 export const changedb = async (): Promise<MyConnection> => {
-  
   const connection = await mongoose.connect(mongoUri);
 
   // Type guard to ensure the connection is a MyConnection
