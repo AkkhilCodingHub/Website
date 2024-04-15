@@ -17,7 +17,7 @@ const LoginPage: React.FC<LoginProps> = () => {
       // Replace with secure validation
       router.push("/admin/dashboard");
     } else {
-      // Handle invalid login
+      Console.log('not a admin')
     }
   };
 
