@@ -1,5 +1,6 @@
+import { redirect } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-
+import LoginPage  from '../component/Auth/LoginPage';
 interface Branch {
   value: string;
   label: string;

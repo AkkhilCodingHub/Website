@@ -9,7 +9,7 @@ let db: any;
 export const connectToDb = async () => {
   if (!client) {
     client = await MongoClient.connect(mongoUri);
-    db = client.db();
+    db = client.db('Custer0');
     console.log("Connected to MongoDB");
   }
   return db;
