@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import LoginPage  from '../component/Auth/LoginPage';
+
 interface Branch {
   value: string;
   label: string;
@@ -40,14 +39,30 @@ const Homepage: React.FC = () => {
   };
 
   const fetchStudents = async (branch: string, semester: number) => {
-    // Replace with actual HSBTΕ API call and handle response
-    const students = [ // Placeholder data
-      { name: 'John Doe', semester },
-      { name: 'Jane Smith', semester }
-    ];
-    setStudents(students);
+    try {
+      // Simulate API call to MongoDB (replace with your actual implementation)
+      const response = await fetch('http://your-api-endpoint/students', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        // Add query parameters if needed (e.g., branch, semester)
+        query: {
+          branch,
+          semester,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch students: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      setStudents(data); // Update state with fetched student data
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      // Handle errors appropriately (e.g., display error message)
+    }
   };
-
+  
   const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
     if (selectedValue !== null) {

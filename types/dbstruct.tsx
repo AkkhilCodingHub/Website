@@ -1,7 +1,7 @@
-import { connectToDb } from "../services/mongo"; // Assuming mongo.js handles database connection using connectDb
+import { connectToDb } from "@/services/mongo"; // Assuming mongo.js handles database connection using connectDb
 import { Admin, Teacher, teacherSchema } from "./admin"; // Import admin and teacher interfaces
-import mongoose from 'mongoose'; // Import Mongoose directly (assuming separate import)
-import { Collection, CreateCollectionOptions } from "mongodb";
+import mongoose from 'mongoose'; 
+import { Collection } from "mongodb";
 
 // Function to fetch all admins from database
 export const login = async (name: string, pin: string): Promise<{ success: boolean; message?: string; admin?: Admin }> => {
