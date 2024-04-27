@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Admin, Teacher } from '../../types/admin'; // Import admin and teacher data types
-import { login } from '../../component/Auth/LoginPage'; // Import login and teacher functions from auth.js (assuming)
+import { login } from './LoginPage'; // Import login and teacher functions from auth.js (assuming)
 import { getTeachers, addTeacher, removeTeacher } from '../../types/dbstruct';
 interface AdminDashboardProps {
   user: Admin | null;

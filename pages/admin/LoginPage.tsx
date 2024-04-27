@@ -15,9 +15,9 @@ const LoginPage: React.FC<LoginProps> = () => {
     // Implement login logic using your service
     if (name === "HOD-EXAM" && pin === "admin@examcs") {
       // Replace with secure validation
-      router.push("/admin/dashboard");
+      router.push("./dashboard");
     } else {
-      Console.log('not a admin')
+      console.log('not a admin')
     }
   };
 

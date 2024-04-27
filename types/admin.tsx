@@ -25,6 +25,7 @@ export interface Student {
   rollno: number;
   branch: string;
   semester: number;
+  marks: string;
   // Add other relevant fields
 }
 
@@ -44,7 +45,6 @@ export const teacherSchema = new mongoose.Schema({
 });
 
 export const branches: Branch[] = [
-  {value: 'diploma', label: 'Diploma'},
   { value: 'architecture', label: 'Architecture' },
   { value: 'computer', label: 'Computer' },
   { value: 'civil', label: 'Civil' },

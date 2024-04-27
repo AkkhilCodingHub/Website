@@ -69,12 +69,12 @@ const Homepage: React.FC = () => {
   };
 
   return (
-    <div className="homepage"> 
+    <div className="homepage">
       <div id="login-button">
         {isLoggedIn ? (
-          <button onClick={() => router.push('/logout')}>Logout</button> // Logout button if logged in
+          <button onClick={() => router.push('/')}>Logout</button> // Logout button if logged in
         ) : (
-          <Link href="/loginpage">
+          <Link href="/login">
             <button>Login</button>
           </Link>
         )}
@@ -116,7 +116,7 @@ const Homepage: React.FC = () => {
         </ul>
       )}
       {isLoggedIn && isTeacher && (
-        <button onClick={() => router.push('/upload')}>Upload Students</button>
+        <button onClick={() => router.push('../admin/upload')}>Upload Students</button>
       )}
     </div>
   );

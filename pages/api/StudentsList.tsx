@@ -3,18 +3,11 @@ import { useRouter } from 'next/router';
 import Select from 'react-select'; // Multi-column selection
 import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
 import { Link } from 'next/link'; // For navigating to profile page
-
+import {Student} from '@/types/admin'
 // Assuming you have a component for displaying student profiles
-import Profile from './Profile'; // Replace with your actual profile component path
+import Profile from '../Profile'; // Replace with your actual profile component path
 
-// Assuming you have a sample student data structure
-interface Student {
-  name: string;
-  rollno:number;
-  semester: number;
-  // Add other student data fields as needed (e.g., rollNumber, marks)
-}
-
+// Assuming you have a data structure for students
 interface SelectedColumn {
   columnName: string;
   students: Student[];
@@ -30,13 +23,8 @@ const StudentsList: React.FC = () => {
 
   // Replace this with your actual student data fetching logic (not HSBTΕ API)
   useEffect(() => {
-    const sampleStudentData = [
-      // Replace with your actual student data
-      { name: 'John Doe', semester: 1, id: '1' },
-      { name: 'Jane Smith', semester: 2, id: '2' },
-      { name: 'Alice Walker', semester: 3, id: '3' },
-    ];
-    setStudents(sampleStudentData);
+    
+    setStudents();
   }, []);
 
   const handleColumnSelect = (selectedOption: any) => { // Adjust type based on your data

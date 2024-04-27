@@ -10,21 +10,8 @@ const Profile: React.FC<ProfileProps> = ({ studentId }) => {
   // Replace with your logic to fetch student profile data based on studentId
   useEffect(() => {
     const fetchStudentProfile = async () => {
-      const profileData = {
-        name: 'John Doe',
-        semester: 1,
-        rollNumber: '211630800003',
-        branch: 'Computer Engineering',
-        marks: {
-          'Computer Networks': 62,
-          'Computer Programming Using Python': 54,
-          'Software Engineering': 80,
-          'Web Development Using PHP': 78,
-          'Cloud Computing': 82,
-          'Industrial Training': 90,
-        },
-      }; // Replace with actual data fetching logic
-      setStudentData(profileData);
+      
+      setStudentData();
     };
     fetchStudentProfile();
   }, [studentId]);
