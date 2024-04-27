@@ -1,7 +1,17 @@
 import mongoose from "mongoose";
+
 export interface Admin{
   name: string;
   pin: string;
+}
+export interface Semester {
+  value: number;
+  label: string;
+}
+
+export interface Branch {
+  value: string;
+  label: string;
 }
 
 export interface Teacher{
@@ -32,3 +42,23 @@ export const teacherSchema = new mongoose.Schema({
     },
     // Add additional fields as needed (e.g., email, subjects taught, etc.)
 });
+
+export const branches: Branch[] = [
+  {value: 'diploma', label: 'Diploma'},
+  { value: 'architecture', label: 'Architecture' },
+  { value: 'computer', label: 'Computer' },
+  { value: 'civil', label: 'Civil' },
+  { value: 'electronics', label: 'Electronics' },
+  { value: 'mechanical', label: 'Machanical' },
+  { value: 'mlt', label: 'MLT' },
+  { value: 'ic', label: 'I/C' },
+];
+
+export const Semesters: Semester[] = [
+  {value: 1, label: 'Semester 1'},
+  { value: 2, label: 'Semester 2' },
+  { value: 3, label: 'Semester 3' },
+  { value: 4, label: 'Semester 4' },
+  { value: 5, label: 'Semester 5' },
+  { value: 6, label: 'Semester 6' },
+  ];

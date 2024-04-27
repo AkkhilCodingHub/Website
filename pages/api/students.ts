@@ -1,15 +1,14 @@
-import { connectToDb } from '@/services/mongo';
-import { Student } from '../../types/admin';
+import { changedb } from '@/services/mongo';
+import { Student } from '@/types/admin';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Collection } from 'mongoose';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[]>) {
   const { branch, semester } = req.query;
 
   try {
     // Replace with your actual MongoDB connection details (environment variables recommended)
-    const db = connectToDb();
-    const collection = db.model('students') as Collection<Student> ; // Typed collection
+    const db = changedb();
+    const collection = (await db).collection<Student>('students') ; // Typed collection
 
     // Replace with your actual filtering logic for branch and semester
     const students = await collection.find({ branch, semester }).toArray();

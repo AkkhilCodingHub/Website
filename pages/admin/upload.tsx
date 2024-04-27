@@ -11,7 +11,7 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: '.xlsx, .xlsm, .xlsb', // Accept Excel file types
+    accept: ['.xlsx', '.xlsm', '.xlsb'], // Accept Excel file types
     onDrop: (acceptedFiles) => {
       setFile(acceptedFiles[0]); // Set the uploaded file
       setUploadError(null); // Clear previous error

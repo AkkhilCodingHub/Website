@@ -1,95 +1,85 @@
 import React, { useState, useEffect } from 'react';
-
-interface Branch {
-  value: string;
-  label: string;
-}
-
-const branches: Branch[] = [
-  {value: 'diploma', label: 'Diploma'},
-  { value: 'architecture', label: 'Architecture' },
-  { value: 'computer', label: 'Computer' },
-  { value: 'civil', label: 'Civil' },
-  { value: 'electronics', label: 'Electronics' },
-  { value: 'mechanical', label: 'Machanical' },
-  { value: 'mlt', label: 'MLT' },
-  { value: 'ic', label: 'I/C' },
-];
-
-interface Semester {
-  value: number;
-  label: string;
-}
+import { branches, Semester, Student, Semesters } from '@/types/admin';
+import Link from 'next/link';
+import { useRouter } from 'next/router'; // For routing
 
 const Homepage: React.FC = () => {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [students, setStudents] = useState<any[]>([]); // Replace with actual student data type
+  const [students, setStudents] = useState<Student[]>([]);
+  const [availableSemesters, setAvailableSemesters] = useState<Semester[]>(Semesters); 
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Track login status
+  const [isTeacher, setIsTeacher] = useState<boolean>(false); // Track user role
+
+  const router = useRouter(); // Get router instance
 
   useEffect(() => {
-    updateSemesters(selectedBranch);
-  }, [selectedBranch]);
+    // Check for existing login state or fetch from storage (implement based on your authentication system)
+    const storedLogin = localStorage.getItem('isLoggedIn'); // Placeholder example
+    setIsLoggedIn(storedLogin === 'true');
 
-  const updateSemesters = (branch: string | null) => {
-    if (branch === 'mlt') {
-      setSemesters(Array.from({ length: 3 }, (_, i) => ({ value: i + 1, label: `Semester ${i + 1}` })));
-    } else {
-      setSemesters(Array.from({ length: 6 }, (_, i) => ({ value: i + 1, label: `Semester ${i + 1}` })));
-    }
-  };
+    // Check for user role or fetch from storage (implement based on your authentication system)
+    const storedUserRole = localStorage.getItem('userRole'); // Placeholder example
+    setIsTeacher(storedUserRole === 'teacher');
+  }, []);
 
-  const fetchStudents = async (branch: string, semester: number) => {
-    try {
-      // Simulate API call to MongoDB (replace with your actual implementation)
-      const response = await fetch('http://your-api-endpoint/students', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        // Add query parameters if needed (e.g., branch, semester)
-        query: {
-          branch,
-          semester,
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Failed to fetch students: ${response.statusText}`);
-      }
-  
-      const data = await response.json();
-      setStudents(data); // Update state with fetched student data
-    } catch (error) {
-      console.error('Error fetching students:', error);
-      // Handle errors appropriately (e.g., display error message)
-    }
-  };
-  
   const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
     if (selectedValue !== null) {
       setSelectedBranch(selectedValue);
+      setStudents([]); // Clear students when branch changes
+
+      // Update available semesters based on selected branch using pre-defined semesters
+      const availableSemesters = selectedValue === 'mlt'
+        ? Semesters.filter((semester) => semester.value <= 3) // Filter first 3 semesters for MLT
+        : Semesters; // Use all semesters for other branches
+
+        setAvailableSemesters(availableSemesters);
     }
   };
 
   const handleSemesterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const semester = parseInt(event.target.value);
-  
-    // Check if selectedBranch is defined and has a value
-    if (selectedBranch) {
-      // Call the fetchStudents function with the selectedBranch and semester values
+
+    if (selectedBranch && semester > 0) { // Only fetch if branch is selected and semester is not empty
       fetchStudents(selectedBranch, semester);
     } else {
-      // Handle the case where selectedBranch is null or undefined
-      // For example, you could display an error message or disable the button
+      setStudents([]); // Clear students if no branch or invalid semester is selected
     }
   };
-  
-  
+
+  const fetchStudents = async (branch: string, semester: number) => {
+    try {
+      const response = await fetch(`/api/students?branch=${branch}&semester=${semester}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch students: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setStudents(data);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      // Handle errors appropriately (e.g., display error message)
+    }
+  };
+  const handleStudentClick = (studentId: string) => {
+    // Navigate to student profile page with student ID as a parameter
+    router.push(`/students/${studentId}`); // Use router.push for navigation
+  };
+
   return (
-    <div>
+    <div className="homepage"> 
       <div id="login-button">
-        <button>Login</button>
+        {isLoggedIn ? (
+          <button onClick={() => router.push('/logout')}>Logout</button> // Logout button if logged in
+        ) : (
+          <Link href="/loginpage">
+            <button>Login</button>
+          </Link>
+        )}
       </div>
-      <h1>Branch list</h1>
+      <h1>Student Management System</h1>
       <div>
         <label htmlFor="branch">Select Branch:</label>
         <select id="branch" name="branch" value={selectedBranch} onChange={handleBranchChange}>
@@ -105,7 +95,7 @@ const Homepage: React.FC = () => {
         <div>
           <label htmlFor="semester">Select Semester:</label>
           <select id="semester" name="semester" value={semesters.length > 0 ? semesters[0].value : ''} onChange={handleSemesterChange}>
-            {semesters.map((semester) => (
+            {availableSemesters.map((semester) => (
               <option key={semester.value} value={semester.value}>
                 {semester.label}
               </option>
@@ -116,11 +106,17 @@ const Homepage: React.FC = () => {
       {students.length > 0 && (
         <ul>
           {students.map((student) => (
-            <li key={student.name}>
-              Name: {student.name}, Semester: {student.semester}
+            <li key={student.rollno}> {/* Use student ID as key */}
+              <Link href={`/students/${student.rollno}`}> {/* Link to student profile */}
+                <a>{student.name}</a>
+              </Link>
+              , Semester: {student.semester}
             </li>
           ))}
         </ul>
+      )}
+      {isLoggedIn && isTeacher && (
+        <button onClick={() => router.push('/upload')}>Upload Students</button>
       )}
     </div>
   );
