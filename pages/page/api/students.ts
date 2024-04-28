@@ -1,4 +1,4 @@
-import { changedb } from '@/services/mongo';
+import { changedb } from '@/pages/services/mongo';
 import { Student } from '@/types/admin';
 import { NextApiRequest, NextApiResponse } from 'next';
 

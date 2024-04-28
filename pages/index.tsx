@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { branches, Semester, Student, Semesters } from '@/types/admin';
+import { branches, Semester, Student, Semesters } from './types/admin';
 import Link from 'next/link';
 import { useRouter } from 'next/router'; // For routing
 

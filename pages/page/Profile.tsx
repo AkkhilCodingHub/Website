@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-
+import { Student } from '../types/admin';
 interface ProfileProps {
   studentId: string;
 }
 
-const Profile: React.FC<ProfileProps> = ({ studentId }) => {
+const Profile: React.FC<Student> = ({ rollno }) => {
   const [studentData, setStudentData] = useState<any>(null); // Replace with actual profile data type
 
   // Replace with your logic to fetch student profile data based on studentId
@@ -14,7 +14,7 @@ const Profile: React.FC<ProfileProps> = ({ studentId }) => {
       setStudentData();
     };
     fetchStudentProfile();
-  }, [studentId]);
+  }, [rollno]);
 
   if (!studentData) {
     return <p>Loading profile...</p>;

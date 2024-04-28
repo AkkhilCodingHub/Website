@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { read as XLSXRead } from 'xlsx'; // Assuming xlsx library uses read instead of parse
-import { changedb, connectToDb } from '@/services/mongo';
+import { changedb, connectToDb } from '@/pages/services/mongo';
 import { Student } from '@/types/admin';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[] | { error: string }>) {

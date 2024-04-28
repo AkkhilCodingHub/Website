@@ -1,4 +1,4 @@
-import { connectToDb } from "@/services/mongo"; // Assuming mongo.js handles database connection using connectDb
+import { connectToDb } from "@/pages/services/mongo"; // Assuming mongo.js handles database connection using connectDb
 import { Admin, Teacher, teacherSchema } from "./admin"; // Import admin and teacher interfaces
 import mongoose from 'mongoose'; 
 import { Collection } from "mongodb";
