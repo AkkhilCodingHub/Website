@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Student } from '../types/admin';
-interface ProfileProps {
-  studentId: string;
-}
+import { Student } from './types/admin';
 
 const Profile: React.FC<Student> = ({ rollno }) => {
   const [studentData, setStudentData] = useState<any>(null); // Replace with actual profile data type
 
   // Replace with your logic to fetch student profile data based on studentId
   useEffect(() => {
-    const fetchStudentProfile = async () => {
-      
-      setStudentData();
+  const fetchStudentProfile = async () => {
+      const response = await fetch(`/api/students/${rollno}`);
+      const data = await response.json();
+      setStudentData(data);
     };
     fetchStudentProfile();
-  }, [rollno]);
-
+    })
   if (!studentData) {
     return <p>Loading profile...</p>;
   }

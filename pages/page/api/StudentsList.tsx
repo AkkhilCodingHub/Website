@@ -5,7 +5,7 @@ import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer
 import { Link } from 'next/link'; // For navigating to profile page
 import {Student} from '@/types/admin'
 // Assuming you have a component for displaying student profiles
-import Profile from '../Profile'; // Replace with your actual profile component path
+import Profile from '../../Profile'; // Replace with your actual profile component path
 
 // Assuming you have a data structure for students
 interface SelectedColumn {

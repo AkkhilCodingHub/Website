@@ -18,12 +18,8 @@ export const login = async (name: string, pin: string): Promise<{ success: boole
   return { success: true, admin };
 };
 
-const main = async () => {
-  try {
-    const connection = await connectToDb();
-
     // Function to fetch all teachers from database
-    export const getTeachers = async (): Promise<Teacher[]> => {
+    const getTeachers = async (): Promise<Teacher[]> => {
       const db = await connectToDb();
       // const db = connection.db("Cluster0");
       const TeacherModel = db.model("Teacher", teacherSchema) as Collection<Teacher>; // Define Teacher model
@@ -32,24 +28,21 @@ const main = async () => {
     };
 
     // Function to add a new teacher to database
-    export const addTeacher = async (teacher: Teacher): Promise<void> => {
+    const addTeacher = async (teacher: Teacher): Promise<void> => {
       const db = await connectToDb();
       const TeacherModel = db.model("Teacher", teacherSchema); // Define Teacher model
       await TeacherModel.create(teacher); // Use Mongoose create method
     };
 
     // Function to remove a teacher from database
-    export const removeTeacher = async (teacherName: string): Promise<void> => {
+    const removeTeacher = async (teacherName: string): Promise<void> => {
       const connection = await connectToDb();
       const db = connection.db("Cluster0");
       const TeacherModel = db.model("Teacher", teacherSchema); // Define Teacher model
       await TeacherModel.deleteOne({ name: teacherName }); // Use Mongoose deleteOne method
     };
-  } catch (error) {
-    console.error('Error connecting to MongoDB or performing operations:', error);
-  }
-};
 
 
 
 export default mongoose.models.Teacher || mongoose.model('Teacher', teacherSchema); // Use mongoose models directly
+export { getTeachers, addTeacher, removeTeacher};

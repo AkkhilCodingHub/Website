@@ -1,4 +1,4 @@
-import { Student } from '@/types/admin';
+import { Student } from '@/pages/types/admin';
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone'; // Assuming you're using react-dropzone
 
@@ -11,7 +11,12 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: ['.xlsx', '.xlsm', '.xlsb'], // Accept Excel file types
+accept: {
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+  'application/vnd.ms-excel.sheet.macroEnabled.12': ['.xlsm'],
+  'application/vnd.ms-excel.sheet.binary.macroEnabled.12': ['.xlsb'],
+},
+
     onDrop: (acceptedFiles) => {
       setFile(acceptedFiles[0]); // Set the uploaded file
       setUploadError(null); // Clear previous error
@@ -43,7 +48,8 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       setFile(null); // Clear file selection
     } catch (error) {
       console.error('Error uploading students:', error);
-      setUploadError(error.message || 'An error occurred during upload.'); // Display user-friendly error
+      const formData = new FormData();
+      formData.append('file', file);
     }
   };
 

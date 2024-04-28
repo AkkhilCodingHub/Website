@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Admin, Teacher } from '../../types/admin'; // Import admin and teacher data types
-import { login } from './LoginPage'; // Import login and teacher functions from auth.js (assuming)
-import { getTeachers, addTeacher, removeTeacher } from '../../types/dbstruct';
+import { Admin, Teacher } from './types/admin'; // Import admin and teacher data types
+import  loginPage  from './LoginPage'; // Import login and teacher functions from auth.js (assuming)
+import { getTeachers, addTeacher, removeTeacher } from './types/dbstruct';
 interface AdminDashboardProps {
   user: Admin | null;
 }
@@ -42,7 +42,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const handleLogin = async () => {
     try {
-      const loginResponse = await login(adminPin, ''); // Assuming pin is the authentication method
+      const loginResponse = await loginPage(adminPin, ''); // Assuming pin is the authentication method
       if (loginResponse.success) {
         setIsLoggedIn(true);
         localStorage.setItem('adminUser', JSON.stringify(loginResponse.admin)); // Store admin data (adapt storage)
