@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 
@@ -19,7 +20,7 @@ interface LoginProps {
    successMessage?: string;
 }
 
-const LoginPage: React.FC<LoginProps> = () => {
+const Login: React.FC<LoginProps> = () => {
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
   const router = useRouter();
@@ -60,4 +61,4 @@ const LoginPage: React.FC<LoginProps> = () => {
   );
 };
 
-export default LoginPage;
+export default Login;

@@ -1,3 +1,4 @@
+"use client";
 import { Student } from '../../types/admin';
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone'; // Assuming you're using react-dropzone
