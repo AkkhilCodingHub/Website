@@ -62,3 +62,9 @@ export const Semesters: Semester[] = [
   { value: 5, label: 'Semester 5' },
   { value: 6, label: 'Semester 6' },
   ];
+
+export interface SelectedColumn {
+    map(arg0: (name: any) => React.JSX.Element): React.ReactNode;
+    columnName: string;
+    students: Student[];
+  }
