@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { changedb } from '@/services/mongo';
 import { Student } from '@/types/admin';
+import * as ExcelJS from 'exceljs'; // Import exceljs library
+import { Stream } from 'stream';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[] | { error: string }>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[] | string | { error: string }>) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
@@ -29,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
       const buffer = event.target.result as ArrayBuffer;
 
-      // Process the ArrayBuffer to extract student data
+      // Process the ArrayBuffer to extract student data directly (no stream conversion)
       const students = await processStudentData(buffer);
 
       // Connect to MongoDB and insert student data (similar to previous code)
@@ -52,9 +54,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 }
 
-// This function needs implementation to parse the ArrayBuffer and extract student data
 async function processStudentData(buffer: ArrayBuffer): Promise<Student[]> {
-  // Implement logic to parse the buffer using libraries like ExcelJS or a custom parser
-  // Extract student data from the parsed Excel data structure and return an array of Student objects
-  throw new Error('processStudentData function not implemented'); // Replace with actual implementation
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.read(buffer);
+
+  const worksheet = workbook.getWorksheet(1); // Assuming student data is in the first worksheet (index 1)
+  const students: Student[] = [];
+
+  if (!worksheet) {
+    throw new Error('No worksheet found in the Excel file');
+  }
+
+  // Skip header row (assuming row 1)
+  for (let row = 2; row <= worksheet.actualRowCount; row++) {
+    const student: Student = {
+      name: worksheet.getCell(row, 1).value as string || '', // Assuming name in column A
+      rollno: Number(worksheet.getCell(row, 2).value) , // Assuming rollno in column B
+      branch: worksheet.getCell(row, 3).value as string || '', // Assuming branch in column C
+      semester: Number(worksheet.getCell(row, 4).value) || '', // Assuming semester in column D.
+      subject: worksheet.getCell(row, 5).value as string|| '', // Assuming subject in column D
+      marks: Number(worksheet.getCell(row, 6).value) || '', // Assuming marks in column E
+    };
+    students.push(student);
+  }
+
+  return students;
 }
