@@ -1,4 +1,3 @@
-import { error } from "console";
 import { MongoClient } from "mongodb";
 import mongoose from 'mongoose';
 
@@ -15,7 +14,7 @@ export async function connectToDb() {
       console.log('MongoDB connection successfully');
     })
 
-    connection.model('error', (err) => {
+    connection.on('error', (err) => {
       console.log("MongoDB connection error-" + err);
       process.exit();
     })

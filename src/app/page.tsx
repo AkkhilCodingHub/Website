@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { branches, Semester, Student, Semesters } from '@/types/admin';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // For routing
+import { getTeachers } from '@/types/dbstruct';
  
 const Homepage: React.FC = () => {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
@@ -66,58 +67,81 @@ const Homepage: React.FC = () => {
   };
   
   return (
-  <div className="homepage ">  
-    <div>
-      <div id="login-button">
-        {isLoggedIn ? ( 
-          <button onClick={() => router.push('/')}>Logout</button> // Logout button if logged in
-        ) : (
-          <Link href="/login">
-            <button className='login-button absolute top-0 right-0' onClick={() => router.push('/login')}>Login</button>
-          </Link>
-        ) }
-      </div>
-      <h1>Student Management System</h1>
-      <div>
-        <label htmlFor="branch">Select Branch:</label>
-        <select id="branch" name="branch" value={selectedBranch} onChange={handleBranchChange}>
-          <option value="">-- Select Branch --</option>
-          {branches.map((branch) => (
-            <option key={branch.value} value={branch.value}>
-              {branch.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      {selectedBranch && (
-        <div>
-          <label htmlFor="semester">Select Semester:</label>
-          <select id="semester" name="semester" value={semesters.length > 0 ? semesters[0].value : ''} onChange={handleSemesterChange}>
-            {availableSemesters.map((semester) => (
-              <option key={semester.value} value={semester.value}>
-                {semester.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-      {students.length > 0 && (
-        <ul>
-          {students.map((student) => (
-            <li key={student.rollno}> {/* Use student ID as key */}
-              <Link href={`/studentlist/${student.rollno}`}> {/* Link to student profile */}
-                <a>{student.name}</a>
-              </Link>
-              , Semester: {student.semester}
-            </li>
-          ))}
-        </ul>
-      )}
-      {isLoggedIn && isTeacher && (
-        <button onClick={() => router.push('/upload')}>Upload Students</button>
-      )}
-    </div>
-  </div>  
-);
-};
+        <div className="min-h-screen bg-cover bg-no-repeat bg-center" style={{ backgroundImage: `url(@/public/image.jpeg)` }}> 
+          <div className="container mx-auto px-4 py-8"> {/* Container for layout */}
+    
+            {/* Login/Logout Button */}
+            {isLoggedIn ? (
+              <div className="flex justify-end">
+                {isTeacher ? (
+                  <span className="text-green-500 font-bold">{`Teacher: ${getTeachers}`}</span>
+                ) : (
+                  <span className="text-blue-500 font-bold">Admin</span>
+                )}
+              </div>
+            ) : (
+              <button className="absolute top-0 right-0 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <Link href="/login">Login</Link>
+              </button>
+            )}
+    
+            {/* Heading */}
+            <h1 className="text-4xl font-bold text-center mb-8">Student Management System</h1>
+    
+            {/* Branches and Semesters (Responsive Layout) */}
+            <div className="flex flex-col sm:flex-row sm:space-x-4">
+              <div className="w-full sm:w-1/2">
+                <label htmlFor="branch" className="text-gray-700 font-medium mb-1">Select Branch:</label>
+                <select id="branch" name="branch" value={selectedBranch} onChange={handleBranchChange} className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">-- Select Branch --</option>
+                  {branches.map((branch) => (
+                    <option key={branch.value} value={branch.value}>
+                      {branch.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {selectedBranch && (
+                <div className="flex items-center justify-center sm:justify-start w-full sm:w-1/2">
+                  <label htmlFor="semester" className="text-gray-700 font-medium mr-2 sm:mr-4">Select Semester:</label>
+                  <select id="semester" name="semester" value={semesters.length > 0 ? semesters[0].value : ''} onChange={handleSemesterChange} className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {availableSemesters.map((semester) => (
+                      <option key={semester.value} value={semester.value}>
+                        {semester.label}
+                      </option>
+                    ))}
+                  </select>
+                  <svg className="hidden sm:block h-5 w-5 text-gray-500 ml-2 transform transition duration-300 ease-in-out" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-1.293-1.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                              </div>
+                            )}
+                          </div>
+                  
+                          {/* Student List */}
+                          {students.length > 0 && (
+                            <ul>
+                              {students.map((student) => (
+                                <li key={student.rollno} className="flex items-center justify-between border-b border-gray-200 py-2">
+                                  <Link href={`/studentlist/${student.rollno}`}>
+                                    <a className="text-gray-700">{student.name}</a>
+                                  </Link>
+                                  <span className="text-gray-500">Semester: {student.semester}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                  
+                          {/* Upload Button (Conditional based on isTeacher) */}
+                          {isLoggedIn && isTeacher && (
+                            <button className="bg-green-500 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                              Upload Students
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  };
+    
+
 export default Homepage;

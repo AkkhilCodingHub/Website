@@ -1,8 +1,9 @@
+import { Readable } from 'stream';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { changedb } from '@/services/mongo';
 import { Student } from '@/types/admin';
 import * as ExcelJS from 'exceljs'; // Import exceljs library
-import { Stream } from 'stream';
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[] | string | { error: string }>) {
   if (req.method !== 'POST') {
@@ -20,7 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     const file = new File([req.body], 'students.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }); // Assuming Excel file
-
+      
+    
     const reader = new FileReader();
     reader.readAsArrayBuffer(file); // Read file content as an ArrayBuffer
 
@@ -28,8 +30,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       if (!event.target || !event.target.result) {
         return res.status(400).send('Invalid Excel file format');
       }
-
+      
       const buffer = event.target.result as ArrayBuffer;
+      const bufferStream = new Readable({
+        read() {
+          this.push(buffer);
+          this.push(null); // Signal end of stream
+        },
+      });
+      
 
       // Process the ArrayBuffer to extract student data directly (no stream conversion)
       const students = await processStudentData(buffer);
@@ -49,8 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       res.status(500).json({ error: 'Failed to read uploaded file.' }); // User-friendly error
     };
   } catch (error) {
-    console.error('Error uploading students:', error);
-    res.status(500).json({ error: error.message || 'An error occurred during upload.' }); // User-friendly error
+    console.error('Error uploading students:');
+    res.status(500).json({ error: 'An error occurred during upload.'}); // User-friendly error
   }
 }
 
@@ -69,11 +78,11 @@ async function processStudentData(buffer: ArrayBuffer): Promise<Student[]> {
   for (let row = 2; row <= worksheet.actualRowCount; row++) {
     const student: Student = {
       name: worksheet.getCell(row, 1).value as string || '', // Assuming name in column A
-      rollno: Number(worksheet.getCell(row, 2).value) , // Assuming rollno in column B
+      rollno: Number(worksheet.getCell(row, 2).value) || 0, // Assuming rollno in column B
       branch: worksheet.getCell(row, 3).value as string || '', // Assuming branch in column C
-      semester: Number(worksheet.getCell(row, 4).value) || '', // Assuming semester in column D.
-      subject: worksheet.getCell(row, 5).value as string|| '', // Assuming subject in column D
-      marks: Number(worksheet.getCell(row, 6).value) || '', // Assuming marks in column E
+      semester: Number(worksheet.getCell(row, 4).value) || 0, // Assuming semester in column D.
+      subject: worksheet.getCell(row, 5).value as string || '', // Assuming subject in column D
+      marks: Number(worksheet.getCell(row, 6).value) || 0, // Assuming marks in column E
     };
     students.push(student);
   }

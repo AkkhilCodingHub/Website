@@ -19,30 +19,32 @@ const Profile: React.FC<Student> = ({ rollno }) => {
   }
 
   return (
-    <div className="profile-container">
-      <h1>{studentData.name}</h1>
-      <p>Roll Number: {studentData.rollNumber}</p>
-      <p>Semester: {studentData.semester}</p>
-      <p>Branch: {studentData.branch}</p>
-      <h2>Marks</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Subject</th>
-            <th>Marks</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(studentData.marks).map(([subject, marks]) => (
-            <tr key={subject}>
-              <td>{subject}</td>
-              <td>{(marks as Number).toString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+    <div className="profile-container px-4 py-8 bg-white rounded-md shadow-md"> {/* Container with styles */}
+  <h1>{studentData.name}</h1>
+  <p className="text-gray-500 mb-2">
+    Roll Number: {studentData.rollNumber}
+  </p>
+  <p className="text-gray-500 mb-2">Semester: {studentData.semester}</p>
+  <p className="text-gray-500 mb-2">Branch: {studentData.branch}</p>
+  <h2>Marks</h2>
+  <table className="w-full table-auto rounded-md border border-gray-200"> {/* Styled table */}
+    <thead>
+      <tr>
+        <th className="px-4 py-2 text-left font-medium text-gray-700 bg-gray-100">Subject</th>
+        <th className="px-4 py-2 text-left font-medium text-gray-700 bg-gray-100">Marks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {Object.entries(studentData.marks).map(([subject, marks]) => (
+        <tr key={subject} className="border-b border-gray-200 hover:bg-gray-100"> {/* Row styling */}
+          <td className="px-4 py-2 text-left text-gray-700">{subject}</td>
+          <td className="px-4 py-2 text-left text-gray-700">{(marks as Number).toString()}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+  )
 };
 
 export default Profile;

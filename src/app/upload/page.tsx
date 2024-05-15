@@ -55,21 +55,21 @@ accept: {
   };
 
   return (
-    <div className="student-upload">
-      <div {...getRootProps({ className: 'dropzone' })}>
-        <input {...getInputProps()} />
-        {file ? (
-          <p>Uploaded: {file.name}</p>
-        ) : (
-          <p>Drag & drop or click to select an Excel file with student data.</p>
-        )}
-      </div>
-      <button onClick={handleUpload} disabled={!file}>
-        Upload Students
-      </button>
-      {uploadError && <p className="error">{uploadError}</p>}
-    </div>
-  );
+    <div className="student-upload flex flex-col items-center space-y-4"> {/* Container with flexbox for layout */}
+  <div {...getRootProps({ className: 'dropzone bg-gray-200 rounded-md p-4 text-center hover:bg-gray-300 transition duration-300' })}> {/* Dropzone area */}
+    <input {...getInputProps()} />
+    {file ? (
+      <p className="text-green-500">Uploaded: {file.name}</p>
+    ) : (
+      <p className="text-gray-500">Drag & drop or click to select an Excel file with student data.</p>
+    )}
+  </div>
+  <button onClick={handleUpload} disabled={!file} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+    Upload Students
+  </button>
+  {uploadError && <p className="error text-red-500">{uploadError}</p>}
+</div>
+  )
 };
 
 export default StudentUpload; 

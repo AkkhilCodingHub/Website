@@ -9,6 +9,7 @@ export interface Semester {
   label: string;
 }
 
+
 export interface Branch {
   value: string;
   label: string;
@@ -25,6 +26,7 @@ export interface Student {
   rollno: number;
   branch: string;
   semester: number;
+  subject: string;
   marks: number;
   // Add other relevant fields
 }
