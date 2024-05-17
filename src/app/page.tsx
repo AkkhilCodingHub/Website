@@ -67,7 +67,7 @@ const Homepage: React.FC = () => {
   };
   
   return (
-        <div className="min-h-screen bg-cover bg-no-repeat bg-center" style={{ backgroundImage: `url(@/public/image.jpeg)` }}> 
+        <div className="min-h-screen bg-cover bg-no-repeat bg-center bg-url bg-[url('/image.svg')]" style={{ backgroundImage: `url(/image.svg)` }}> 
           <div className="container mx-auto px-4 py-8"> {/* Container for layout */}
     
             {/* Login/Logout Button */}
@@ -92,7 +92,7 @@ const Homepage: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:space-x-4">
               <div className="w-full sm:w-1/2">
                 <label htmlFor="branch" className="text-gray-700 font-medium mb-1">Select Branch:</label>
-                <select id="branch" name="branch" value={selectedBranch} onChange={handleBranchChange} className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="branch" name="branch" value={selectedBranch !== null ? selectedBranch : ''} onChange={handleBranchChange} className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="">-- Select Branch --</option>
                   {branches.map((branch) => (
                     <option key={branch.value} value={branch.value}>

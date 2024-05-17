@@ -35,7 +35,7 @@ accept: {
       formData.append('file', file);
 
       // Replace with your actual API route for handling student upload
-      const response = await fetch('/api/upload-students', {
+      const response = await fetch('/api/upload-student', {
         method: 'POST',
         body: formData,
       });

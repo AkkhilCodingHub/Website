@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { Admin, Teacher } from '@/types/admin'; // Import admin and teacher data types
 import loginPage from '../login/page'; // Import login and teacher functions from auth.js (assuming)
 import { getTeachers, addTeacher, removeTeacher } from '@/types/dbstruct';
-
 interface AdminDashboardProps {
   user: Admin | null;
 }
@@ -45,7 +44,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const handleLogin = async () => {
     try {
-      const loginResponse = await loginPage(adminPin, ''); // Pass retrieved adminPin
+      const loginResponse = await loginPage(adminPin); // Pass retrieved adminPin
       if (loginResponse === "success") { // Assuming loginPage returns "success" on success
         setIsLoggedIn(true);
         localStorage.setItem('adminUser', JSON.stringify(true)); // Set admin logged in flag

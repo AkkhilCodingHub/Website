@@ -12,28 +12,28 @@ interface Admin {
   pin: string; // Hashed pin
 }
 
-async function getAdminById(id: string): Promise<Admin | null> {
-  const db = changedb(); // Replace with your database name
-  const admins = db.collection('admins') as Collection<Admin>; // Replace with your collection name
+export async function getAdminById(id: string): Promise<Admin | null> {
+  const db = await changedb(); // Replace with your database name
+  const admins = db.collection("admins") as Collection<Admin>; // Replace with your collection name
 
-  return await admins.findOne({ _id: id });
+  // Cast string to ObjectId before using it in the filter
+  const objectId = new objectId(id);
+  return await admins.findOne({ _id: objectId });
 }
 
 export async function updateAdminPin(id: string, hashedPin: string): Promise<void> {
-  const db = changedb(); // Replace with your database name
+  const db = await changedb(); // Replace with your database name
   const admins = db.collection<Admin>('admins'); // Replace with your collection name
 
-  await admins.updateOne({ _id: id }, { $set: { pin: hashedPin } });
+  // Cast string to ObjectId before using it in the filter
+  const objectId = new objectId(id);
+  await admins.updateOne({ _id: objectId }, { $set: { pin: hashedPin } });
 }
-// Replace with your data store access logic (e.g., database connection)
-const db: {
-  getAdminById: (id: number) => Promise<Admin | null>;
-  updateAdminPin: (id: number, hashedPin: string) => Promise<void>;
-} = require('./db');
+
 
 type VerifyAdminTokenRequest = Request & { admin: Admin }; // Extend Request with admin object
 
-router.post('/update-pin', verifyAdminToken as (req: VerifyAdminTokenRequest, res: Response) => void, async (req, res) => {
+router.post('/update-pin', verifyAdminToken as (req: VerifyAdminTokenRequest, res: Response) => void, async (req: { body: { newPin: any; }; admin: { id: number; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): void; new(): any; }; }; json: (arg0: { message: string; token: any; }) => void; }) => {
   try {
     const { newPin } = req.body;
 

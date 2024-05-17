@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useParams, useRouter } from 'next/navigation';
 import Select from 'react-select'; // Multi-column selection
 import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
 import  Link  from 'next/link'; // For navigating to profile page
@@ -11,7 +11,7 @@ import Profile from '../../profile/page'; // Replace with your actual profile co
 
 const StudentsList: React.FC = () => {
   const router = useRouter();
-  const { branch, semester } = router.query; // Access query parameters
+  const { branch, semester } = useParams.arguments; // Access query parameters
 
   const [students, setStudents] = useState<Student[]>([]); // Use sample or mock data
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -29,21 +29,27 @@ const StudentsList: React.FC = () => {
   }, [branch, semester]); // Re-run effect when branch or semester changes
 
 
-  const handleStudentSelect = (Student : Student) => {
-   const studentRollNo = Student.rollno; // Assuming 'rollno' is the property for student ID
+  const handleStudentSelect = (student: Student) => {
+    const studentRollNo = student.rollno; // Assuming 'rollno' is the property for student ID
   
-   if (selectedStudents.includes(studentRollNo.toString())) {
-    // Deselect student if already selected
-     setSelectedStudents(selectedStudents.filter((rollNo) => rollNo !== studentRollNo.toString()));
-   }  else {
-     // Select student if not already selected
-    setSelectedStudents([...selectedStudents, studentRollNo.toString()]);
-   }
+    // **Change:** Create a copy of the selectedStudents array to avoid mutation
+    const newSelectedStudents = [...selectedStudents]; 
+  
+    if (newSelectedStudents.includes(studentRollNo.toString())) {
+      // Deselect student if already selected
+      const index = newSelectedStudents.indexOf(studentRollNo.toString());
+      newSelectedStudents.splice(index, 1);
+    } else {
+      // Select student if not already selected
+      newSelectedStudents.push(studentRollNo.toString());
+    }
+  
+    setSelectedStudents(newSelectedStudents);
   };
 
-  const handleStudentClick = (studentId: string) => {
+  const handleStudentClick = (rollno: Number) => {
    // Navigate to student profile page with student ID as a parameter
-   router.push(`/studentlist/${studentId}`); // Use router.push for navigation
+   router.push(`/studentlist/${rollno}`); // Use router.push for navigation
   };
 
   const handlePrint = async () => {
@@ -52,6 +58,8 @@ const StudentsList: React.FC = () => {
      const selectedStudentNames = students.filter((student) =>
       selectedStudents.includes(student.rollno.toString())
      ).map((student) => student.name); // Extract names of filtered students
+     // Clear selected students after printing
+     setSelectedStudents([]);
 
       const doc = (
         <Document>
@@ -78,6 +86,7 @@ const StudentsList: React.FC = () => {
    } catch (error) {
      console.error('Error generating PDF:', error);
      // Optionally display an error message to the user
+     return null;
     }
   };
 

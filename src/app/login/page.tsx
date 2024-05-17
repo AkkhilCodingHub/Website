@@ -42,7 +42,8 @@ const Login: React.FC<LoginProps> = () => {
       router.push("/"); // Assuming root path for successful login
     } else {
       const data = await response.json();
-      if (errorRef.current) {
+      if (errorRef.
+        current) {
         errorRef.current.textContent = data.message; // Display error from response
       }
     }
@@ -66,7 +67,7 @@ const Login: React.FC<LoginProps> = () => {
   };
 
   return (
-<div>
+<div className="login-container bg-gray-100 flex flex-col items-center justify-center h-screen ">
   {/* Login form with name and pin fields */}
   <form onSubmit={handleLogin} className="flex flex-col space-y-2"> {/* Form with flexbox layout */}
     <input

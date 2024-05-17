@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useParams, useRouter } from 'next/navigation';
 import Select from 'react-select'; // Multi-column selection
 import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
 import  Link  from 'next/link'; // For navigating to profile page
@@ -11,7 +11,7 @@ import Profile from '../profile/page'; // Replace with your actual profile compo
 
 const StudentsList: React.FC = () => {
   const router = useRouter();
-  const { branch, semester } = router.query; // Access query parameters
+  const { branch, semester } = useParams(); // Access query parameters
 
   const [students, setStudents] = useState<Student[]>([]); // Use sample or mock data
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -21,6 +21,9 @@ const StudentsList: React.FC = () => {
   // Replace this with your actual student data fetching logic (not HSBTΕ API)
   useEffect(() => {
   const fetchData = async () => {
+    const url = `/api/students?branch=${branch}&semester=${semester}`;
+    console.log('API URL:', url);
+
     const response = await axios.get(`/api/students?branch=${branch}&semester=${semester}`); // Assuming API endpoint
     setStudents(response.data);
   };
@@ -47,7 +50,6 @@ const StudentsList: React.FC = () => {
   };
 
   const handlePrint = async () => {
-    try {
       // Implement logic to print selected student profiles based on selectedStudents array
      const selectedStudentNames = students.filter((student) =>
       selectedStudents.includes(student.rollno.toString())
@@ -66,20 +68,17 @@ const StudentsList: React.FC = () => {
         </Document>
       );
       // **Change:** Wrap the JSX content in a function that returns it
-      return (
+      const PrintContent = () => (
         <PDFDownloadLink document={doc} fileName="selected_students.pdf">
-         {({ blob, url }) => (
-           <button onClick={() => blob && window.open(url?.toString(), '_blank')}>
-             Print Selected Students
-           </button>
+          {({ blob, url }) => (
+            <button onClick={() => blob && window.open(url?.toString(), '_blank')}>
+              Print Selected Students
+            </button>
           )}
         </PDFDownloadLink>
-     );
-   } catch (error) {
-     console.error('Error generating PDF:', error);
-     // Optionally display an error message to the user
-    }
-  };
+      );
+      return PrintContent();
+    };
 
   // Admin functionalities
   const [isAdmin, setIsAdmin] = useState(false); // Replace with logic to check for admin user

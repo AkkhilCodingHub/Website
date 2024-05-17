@@ -32,13 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       }
       
       const buffer = event.target.result as ArrayBuffer;
-      const bufferStream = new Readable({
-        read() {
-          this.push(buffer);
-          this.push(null); // Signal end of stream
-        },
-      });
-      
 
       // Process the ArrayBuffer to extract student data directly (no stream conversion)
       const students = await processStudentData(buffer);
@@ -65,7 +58,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 async function processStudentData(buffer: ArrayBuffer): Promise<Student[]> {
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.read(buffer);
+  const stream = new Readable(); // Create a ReadableStream
+  stream.push(buffer); // Push the buffer data into the stream
+  stream.push(null); // Signal the end of the stream
+  await workbook.xlsx.read(stream);
 
   const worksheet = workbook.getWorksheet(1); // Assuming student data is in the first worksheet (index 1)
   const students: Student[] = [];
