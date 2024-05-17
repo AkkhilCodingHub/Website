@@ -1,4 +1,5 @@
 "use client";
+import  axios  from 'axios';
 import { Student } from '../../types/admin';
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone'; // Assuming you're using react-dropzone
@@ -35,22 +36,23 @@ accept: {
       formData.append('file', file);
 
       // Replace with your actual API route for handling student upload
-      const response = await fetch('/api/upload-student', {
+      const response = await axios.post('/api/upload-student', {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) {
+      if (response.status >= 200 && response.status < 400) {
+        // Request was successful
+        const uploadedStudents = response.data;
+        onUploadSuccess(uploadedStudents);
+        setFile(null);
+      } else {
+        // Handle error cases (e.g., status code 4xx or 5xx)
         throw new Error('Error uploading students');
       }
-
-      const uploadedStudents = await response.json();
-      onUploadSuccess(uploadedStudents); // Call callback with uploaded data
-      setFile(null); // Clear file selection
     } catch (error) {
       console.error('Error uploading students:', error);
-      const formData = new FormData();
-      formData.append('file', file);
+      // Additional error handling or fallback logic
     }
   };
 
