@@ -29,7 +29,16 @@ export interface Student {
   semester: number;
   subject: string;
   marks: number;
-  // Add other relevant fields
+}
+
+export interface StudentProfile {
+  name: string;
+  rollNumber: string;
+  semester: number;
+  branch: string;
+  marks: {
+    [subject: string]: number | null;
+  };
 }
 
 // Mongoose schema for Teacher documents

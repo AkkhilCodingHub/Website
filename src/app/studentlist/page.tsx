@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Select from 'react-select'; // Multi-column selection component
-import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer'; // PDF generation components
 import Link from 'next/link'; // Component for client-side navigation
 import axios from 'axios'; // HTTP client for making requests
 import { Student } from '@/types/admin' // Type definition for Student
 import Profile from '../profile/page'; // Profile component for student details
+import jsPDF from 'jspdf'; // PDF generation library
 
 // Main component for displaying the list of students
 const StudentsList: React.FC = () => {
@@ -70,25 +70,19 @@ const StudentsList: React.FC = () => {
   const PrintContent: React.FC = () => {
     if (!selectedStudentNames.length) return null; // Return null if no names to print
 
+    const generatePDF = () => {
+      const doc = new jsPDF();
+      doc.text('Selected Students:', 10, 10);
+      selectedStudentNames.forEach((name, index) => {
+        doc.text(`${index + 1}. ${name}`, 10, 20 + (10 * index));
+      });
+      doc.save('selected_students.pdf');
+    };
+
     return (
-      <PDFDownloadLink document={
-        <Document>
-          <Page>
-            <Text>Selected Students:</Text>
-            <ol style={{ marginLeft: 20 }}>
-              {selectedStudentNames.map(name => (
-                <li key={name}>{name}</li> // List each selected student's name
-              ))}
-            </ol>
-          </Page>
-        </Document>
-      } fileName="selected_students.pdf">
-        {({ blob, url }) => (
-          <button onClick={() => blob && window.open(url?.toString(), '_blank')}>
-            Print Selected Students
-          </button>
-        )}
-      </PDFDownloadLink>
+      <button onClick={generatePDF}>
+        Print Selected Students
+      </button>
     );
   };
 

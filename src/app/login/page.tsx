@@ -1,75 +1,78 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"; // Corrected import for useRouter
+import axios from "axios";
 
+// Interface defining the properties for the Login component
 export interface LoginProps {
-  // Initial values
-  username?: string;
-  pin?: string;
+  username?: string; // Optional initial username
+  pin?: string; // Optional initial pin
 
-  // Error handling
-  errorMessage?: string;
+  errorMessage?: string; // Optional error message for display
 
-  // Login function
-  onLogin: (username: string, pin: string) => void;
+  onLogin: (username: string, pin: string) => void; // Function to call on successful login
 
-  // Loading state
-  isLoading?: boolean;
+  isLoading?: boolean; // Flag to indicate if the login process is in progress
 
-  // Success message
-  successMessage?: string;
+  successMessage?: string; // Optional success message for display
 }
 
+// Functional component for handling user login
 const Login: React.FC<LoginProps> = () => {
-  const [name, setName] = useState("");
-  const [pin, setPin] = useState("");
-  const router = useRouter();
-  const [showPinPopup, setShowPinPopup] = useState(false); // Admin pin pop-up visibility
-  const [adminPinInput, setAdminPinInput] = useState(""); // Entered admin pin
-  const errorRef = useRef<HTMLDivElement>(null); // Reference to error message element
+  const [name, setName] = useState(""); // State for storing username
+  const [pin, setPin] = useState(""); // State for storing user pin
+  const router = useRouter(); // Hook to access the router object
+  const [showPinPopup, setShowPinPopup] = useState(false); // State to manage visibility of the admin pin popup
+  const [adminPinInput, setAdminPinInput] = useState(""); // State for storing the admin pin input
+  const errorRef = useRef<HTMLDivElement>(null); // Ref to access the DOM element for displaying errors
 
+  // Handler for login form submission
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ name, pin })
-    });
+    e.preventDefault(); // Prevent default form submission behavior
+    try {
+      const response = await axios.post('/api/login', {
+        name,
+        pin
+      });
 
-    if (response.ok) {
-      router.push("/"); // Assuming root path for successful login
-    } else {
-      const data = await response.json();
-      if (errorRef.
-        current) {
-        errorRef.current.textContent = data.message; // Display error from response
+      if (response.status === 200) {
+        router.push("/"); // Navigate to the root path on successful login
+      } else {
+        if (errorRef.current) {
+          errorRef.current.textContent = response.data.message; // Display error message from response
+        }
+      }
+    } catch (error: any) {
+      if (errorRef.current) {
+        errorRef.current.textContent = error.response.data.message || "An error occurred"; // Display error message from exception
       }
     }
   };
 
+  // Handler for admin pin form submission
   const handleAdminPinSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (adminPinInput === process.env.REACT_APP_ADMIN_PIN) { // Use environment variable
-      router.push("/Dashboard");
+    if (adminPinInput === process.env.REACT_APP_ADMIN_PIN) { // Check if the entered pin matches the environment variable
+      router.push("/Dashboard"); // Navigate to the Dashboard on successful pin entry
     } else {
-      setAdminPinInput(""); // Clear entered pin after submission
+      setAdminPinInput(""); // Clear the pin input on failure
       if (errorRef.current) {
-        errorRef.current.textContent = "Incorrect Admin Pin. Please try again.";
+        errorRef.current.textContent = "Incorrect Admin Pin. Please try again."; // Display error message
       }
     }
-    setShowPinPopup(false); // Close pop-up
+    setShowPinPopup(false); // Close the admin pin popup
   };
 
+  // Handler to show the admin pin popup
   const handleShowAdminPinPopup = () => {
     setShowPinPopup(true);
   };
 
+  // Render method for the Login component
   return (
 <div className="login-container bg-gray-100 flex flex-col items-center justify-center h-screen ">
-  {/* Login form with name and pin fields */}
-  <form onSubmit={handleLogin} className="flex flex-col space-y-2"> {/* Form with flexbox layout */}
+  {/* Login form with username and pin input fields */}
+  <form onSubmit={handleLogin} className="flex flex-col space-y-2">
     <input
       type="text"
       value={name}
@@ -87,14 +90,15 @@ const Login: React.FC<LoginProps> = () => {
     </button>
   </form>
 
-  {/* Button to trigger admin pin pop-up */}
+  {/* Button to trigger the display of the admin pin popup */}
   <button onClick={handleShowAdminPinPopup} className="bg-gray-200 text-gray-500 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
     Dashboard (Admin)
   </button>
 
-  {showPinPopup && ( // Show pop-up only if visible
-    <div className="pin-popup fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center"> {/* Pop-up with fixed positioning */}
-      <div className="bg-white rounded-md shadow-md p-4 flex flex-col space-y-2"> {/* Pop-up content */}
+  {/* Conditional rendering of the admin pin popup based on its visibility state */}
+  {showPinPopup && (
+    <div className="pin-popup fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-md shadow-md p-4 flex flex-col space-y-2">
         <h2>Enter Admin Pin</h2>
         <form onSubmit={handleAdminPinSubmit} className="flex flex-col space-y-2">
           <input
@@ -112,7 +116,7 @@ const Login: React.FC<LoginProps> = () => {
     </div>
   )}
 
-  {/* Error message element (optional) */}
+  {/* Optional rendering of the error message element */}
   {errorRef.current && <div ref={errorRef} className="error-message"></div>}
 </div>
   )
