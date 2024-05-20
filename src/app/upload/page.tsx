@@ -2,7 +2,7 @@
 import { Student } from '../../types/admin';
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone'; // Assuming you're using react-dropzone
-
+import axios from 'axios';
 interface StudentUploadProps {
   onUploadSuccess: (students: Student[]) => void; // Callback for successful upload
 }
@@ -35,17 +35,13 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload-student', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const uploadedStudents = await response.json();
+      const response = await axios.post('/api/upload-student', formData);
+      if (response.status === 200) {
+        const uploadedStudents = response.data;
         onUploadSuccess(uploadedStudents);
         setFile(null); // Reset file after successful upload
       } else {
-        const errorText = await response.text(); // Get error message from server if possible
+        const errorText = response.statusText; // Get error message from server if possible
         throw new Error(errorText || 'Error uploading students');
       }
     } catch (error: any) {
