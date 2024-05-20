@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Admin, Teacher } from '@/types/admin'; // Import admin and teacher data types
+import { Admin, User as Teacher } from '@/types/admin'; // Import admin and teacher data types
 import loginPage from '../login/page'; // Import login and teacher functions from auth.js (assuming)
 import { getTeachers, addTeacher, removeTeacher } from '@/types/dbstruct';
 import { LoginProps } from '../login/page'; // Import LoginProps interface from login/page.tsx
@@ -168,7 +168,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   {isLoggedIn ? (
     <>
       <h1>Admin Dashboard</h1>
-      <h2>Welcome, {user?.name}</h2> {/* Display admin name if logged in */}
+      <h2>Welcome, {user?.id}</h2> {/* Display admin name if logged in */}
       <h3>Teachers</h3>
       {/* ... teacher list and functionality (unchanged) */}
       {teachers.length > 0 ? (

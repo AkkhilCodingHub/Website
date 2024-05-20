@@ -1,25 +1,22 @@
+import { changedb } from '@/services/mongo';
 import express from 'express';
+import { User } from '@/types/admin'; // Import User type from admin types
 const router = express.Router();
 
-// Connect to a real database to fetch user credentials and admin pin
-const db = require('./database'); // Assuming 'database' module handles database operations
-
-interface User {
-  username: string;
-  pin: string;
-  adminPin?: string;
-}
+// Connect to a real database to fetch user credentials
+const db = changedb(); // Assuming 'database' module handles database operations
 
 async function getUserCredentials(): Promise<User[]> {
-  const result = await db.query('SELECT username, pin, adminPin FROM users');
-  return result.rows;
+  const usersCollection = (await db).collection('users'); // Access the 'users' collection
+  const users = await usersCollection.find({}).toArray(); // Fetch all users
+  return users.map(user => ({ name: user.name, pin: user.pin })); // Map to expected structure
 }
 
 router.post('/', async (req, res) => {
   const { name, pin } = req.body;
   // Fetch user credentials from the database
   const users = await getUserCredentials();
-  const user = users.find((user: User) => user.username === name && user.pin === pin);
+  const user = users.find(user => user.name === name && user.pin === pin);
   
   if (user) {
     res.status(200).json({ message: 'Login successful' });

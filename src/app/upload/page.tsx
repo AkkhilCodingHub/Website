@@ -1,17 +1,21 @@
 "use client";
 import { Student } from '../../types/admin';
 import React, { useState } from 'react';
-import { useDropzone } from 'react-dropzone'; // Assuming you're using react-dropzone
+import { useDropzone } from 'react-dropzone'; // Importing useDropzone from react-dropzone for file drop functionality
 import axios from 'axios';
+
+// Interface defining the props for StudentUpload component
 interface StudentUploadProps {
-  onUploadSuccess: (students: Student[]) => void; // Callback for successful upload
+  onUploadSuccess: (students: Student[]) => void; // Callback function to be called on successful upload
 }
 
+// React functional component for uploading student data via Excel files
 const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null); // State to hold the selected file
+  const [uploadError, setUploadError] = useState<string | null>(null); // State to hold any error during upload process
+  const [isLoading, setIsLoading] = useState(false); // State to indicate loading during file upload
 
+  // Configuration for useDropzone hook
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
@@ -24,25 +28,27 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
     },
   });
 
+  // Function to handle the upload of the file to the server
   const handleUpload = async () => {
     if (!file) {
       setUploadError('Please select an Excel file to upload.');
-      return; // Handle no file selected case
+      return; // Exit if no file is selected
     }
 
-    setIsLoading(true); // Start loading
+    setIsLoading(true); // Indicate start of upload process
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', file); // Append file to form data
 
-      // Check if the server supports the POST method for this endpoint
+      // Pre-flight request to check server capabilities
       const options = {
         method: 'OPTIONS',
         url: '/api/upload-student',
       };
       const preflightResponse = await axios(options);
 
-      if (preflightResponse.status === 204 || preflightResponse.status === 200) { // 204 No Content or 200 OK means allowed
+      // Check if POST method is allowed
+      if (preflightResponse.status === 204 || preflightResponse.status === 200) {
         const response = await axios.post('/api/upload-student', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -50,7 +56,7 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
         });
         if (response.status === 200) {
           const uploadedStudents = response.data;
-          onUploadSuccess(uploadedStudents);
+          onUploadSuccess(uploadedStudents); // Callback with uploaded data
           setFile(null); // Reset file after successful upload
         } else {
           const errorText = response.statusText; // Get error message from server if possible
@@ -63,13 +69,14 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       console.error('Error uploading students:', error);
       setUploadError(error.message || 'Failed to upload');
     } finally {
-      setIsLoading(false); // End loading
+      setIsLoading(false); // Indicate end of upload process
     }
   };
 
+  // JSX for rendering the upload component
   return (
-    <div className="student-upload flex flex-col items-center space-y-4"> {/* Container with flexbox for layout */}
-      <div {...getRootProps({ className: 'dropzone bg-gray-200 rounded-md p-4 text-center hover:bg-gray-300 transition duration-300' })}> {/* Dropzone area */}
+    <div className="student-upload flex flex-col items-center space-y-4">
+      <div {...getRootProps({ className: 'dropzone bg-gray-200 rounded-md p-4 text-center hover:bg-gray-300 transition duration-300' })}>
         <input {...getInputProps()} />
         {file ? (
           <p className="text-green-500">Uploaded: {file.name}</p>

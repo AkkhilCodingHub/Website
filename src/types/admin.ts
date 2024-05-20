@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 
 export interface Admin{
-  name: string;
+  id: string;
   pin: string;
 }
+
 export interface Semester {
   value: number;
   label: string;
@@ -15,7 +16,7 @@ export interface Branch {
   label: string;
 }
 
-export interface Teacher{
+export interface User{
   name: string;
   pin: string;
 }
@@ -66,5 +67,5 @@ export const Semesters: Semester[] = [
   ];
 
 export const admins: Admin[] = [
-  { name: 'admin', pin: 'admin' },
+  { id: 'admin', pin: 'admin' },
 ];

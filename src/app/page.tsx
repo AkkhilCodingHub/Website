@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // For routing
 import { getTeachers } from '@/types/dbstruct';
  
+// Homepage component using React functional component syntax
 const Homepage: React.FC = () => {
+  // State hooks for various properties
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -15,23 +17,23 @@ const Homepage: React.FC = () => {
 
   const router = useRouter(); // Get router instance
 
+  // Effect hook to check login and user role from local storage
   useEffect(() => {
-    // Check for existing login state or fetch from storage (implement based on your authentication system)
     const storedLogin = localStorage.getItem('isLoggedIn'); // Placeholder example
     setIsLoggedIn(storedLogin === 'true');
 
-    // Check for user role or fetch from storage (implement based on your authentication system)
     const storedUserRole = localStorage.getItem('userRole'); // Placeholder example
     setIsTeacher(storedUserRole === 'teacher');
   }, []);
 
+  // Handler for branch selection change
   const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
     if (selectedValue !== null) {
       setSelectedBranch(selectedValue);
       setStudents([]); // Clear students when branch changes
 
-      // Update available semesters based on selected branch using pre-defined semesters
+      // Update available semesters based on selected branch
       const availableSemesters = selectedValue === 'mlt'
         ? Semesters.filter((semester) => semester.value <= 3) // Filter first 3 semesters for MLT
         : Semesters; // Use all semesters for other branches
@@ -40,16 +42,18 @@ const Homepage: React.FC = () => {
     }
   };
 
+  // Handler for semester selection change
   const handleSemesterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const semester = parseInt(event.target.value);
 
-    if (selectedBranch && semester > 0) { // Only fetch if branch is selected and semester is not empty
+    if (selectedBranch && semester > 0) { // Only fetch if branch is selected and semester is valid
       fetchStudents(selectedBranch, semester);
     } else {
       setStudents([]); // Clear students if no branch or invalid semester is selected
     }
   };
 
+  // Function to fetch students based on branch and semester
   const fetchStudents = async (branch: string, semester: number) => {
     try {
       const response = await fetch(`/api/students?branch=${branch}&semester=${semester}`);
@@ -66,6 +70,7 @@ const Homepage: React.FC = () => {
     }
   };
   
+  // Render method returns the JSX for the homepage
   return (
         <div className="min-h-screen bg-cover bg-no-repeat bg-center bg-url bg-[url('/image.svg')]" style={{ backgroundImage: `url(/image.svg)` }}> 
           <div className="container mx-auto px-4 py-8"> {/* Container for layout */}
@@ -142,6 +147,4 @@ const Homepage: React.FC = () => {
                       </div>
                     );
                   };
-    
-
 export default Homepage;
