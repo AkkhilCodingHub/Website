@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import multer from 'multer';
-import { changedb } from '../../../services/mongo';
-import { Student } from '../../../types/admin';
+import { changedb } from '@/services/mongo';
+import { StudentData as Student } from '@/types/admin';
 import ExcelJS from 'exceljs';
 import { parse } from 'json2csv';
 
