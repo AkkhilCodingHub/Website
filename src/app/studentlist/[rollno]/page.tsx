@@ -38,17 +38,15 @@ const StudentsList: React.FC = () => {
       const url = `/api/students?branch=${branch}&semester=${semester}`;
       console.log("API URL:", url);
 
-      const response = await axios.get(
-        `/api/students?branch=${branch}&semester=${semester}`
-      ); // Assuming API endpoint
+      const response = await axios.get(url); // Assuming API endpoint
       setStudents(response.data);
     };
 
     fetchData();
   }, [branch, semester]); // Re-run effect when branch or semester changes
 
-  const handleStudentSelect = (Student: Student) => {
-    const studentRollNo = Student.rollno; // Assuming 'rollno' is the property for student ID
+  const handleStudentSelect = (student: Student) => {
+    const studentRollNo = student.rollno; // Assuming 'rollno' is the property for student ID
 
     if (selectedStudents.includes(studentRollNo.toString())) {
       // Deselect student if already selected
@@ -61,7 +59,7 @@ const StudentsList: React.FC = () => {
     }
   };
 
-  const handleStudentClick = (rollno: Number) => {
+  const handleStudentClick = (rollno: number) => {
     // Navigate to student profile page with student ID as a parameter
     router.push(`/profile/${rollno}`); // Use router.push for navigation
   };
@@ -119,91 +117,89 @@ const StudentsList: React.FC = () => {
       ...filterOptions,
       [selectedOption.value]: selectedOption.label,
     }); // Update filter state
-
-    // Placeholder for edit functionality (implementation details depend on your requirements)
-    const handleEditStudent = (student: Student) => {
-      console.log("Edit student:", student);
-      // Replace with actual logic for editing student data (e.g., navigate to edit form)
-    };
-    return (
-      <div>
-        <h1>Students List</h1>
-        <Select
-          options={Object.keys(filterOptions).map((key) => ({
-            value: key,
-            label: filterOptions[key],
-          }))}
-          isMulti // Allow multiple selections
-          value={Object.keys(filterOptions).map((key) => ({
-            value: key,
-            label: filterOptions[key],
-          }))} // Pre-select based on filter state
-          onChange={handleFilterChange}
-        />
-        <ul>
-          {students.map((student) => (
-            <li key={student.rollno}>
-              <button onClick={() => handleStudentSelect(student)}>
-                {selectedStudents.includes(student.rollno.toString())
-                  ? "Deselect"
-                  : "Select"}
-              </button>
-              {/* Make the student name clickable and call handleStudentClick when clicked */}
-              <a
-                onClick={() => handleStudentClick(student.rollno)}
-                style={{ cursor: "pointer", color: "blue" }}
-              >
-                {student.name}
-              </a>
-              <Link href={`/profile/${student.rollno}`}>
-                <a>Profile</a>
-              </Link>
-              {isAdmin && (
-                <>
-                  <button
-                    onClick={() => handleViewProfile(student.rollno.toString())}
-                  >
-                    View Profile
-                  </button>
-                  <button onClick={() => handleEditStudent(student)}>
-                    Edit
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        <button onClick={handlePrint}>Print Selected Students</button>
-        {showPrintComponent && <PrintContent />}
-        {selectedProfileId && (
-          <Profile
-            rollno={selectedProfileId}
-            name={""}
-            branch={""}
-            semester={0}
-            marks={0}
-            subject={""}
-          />
-        )}
-
-        {/* Admin functionalities (conditionally render) */}
-        {isAdmin && (
-          <div>
-            <h2>Admin Panel</h2>
-            {/* Edit functionality (placeholder, replace with actual implementation) */}
-            <button disabled={!selectedStudentId}>Edit Selected Student</button>
-
-            {/* Add other admin functionalities here (e.g., add new student, delete student) */}
-            <button>Add New Student</button>
-            <button disabled={!selectedStudents.length}>
-              Delete Selected Students
-            </button>
-          </div>
-        )}
-      </div>
-    );
   };
+
+  const handleEditStudent = (student: Student) => {
+    console.log("Edit student:", student);
+    // Replace with actual logic for editing student data (e.g., navigate to edit form)
+  };
+
+  return (
+    <div>
+      <h1>Students List</h1>
+      <Select
+        options={Object.keys(filterOptions).map((key) => ({
+          value: key,
+          label: filterOptions[key],
+        }))}
+        isMulti // Allow multiple selections
+        value={Object.keys(filterOptions).map((key) => ({
+          value: key,
+          label: filterOptions[key],
+        }))} // Pre-select based on filter state
+        onChange={handleFilterChange}
+      />
+      <ul>
+        {students.map((student) => (
+          <li key={student.rollno}>
+            <button onClick={() => handleStudentSelect(student)}>
+              {selectedStudents.includes(student.rollno.toString())
+                ? "Deselect"
+                : "Select"}
+            </button>
+            {/* Make the student name clickable and call handleStudentClick when clicked */}
+            <a
+              onClick={() => handleStudentClick(student.rollno)}
+              style={{ cursor: "pointer", color: "blue" }}
+            >
+              {student.name}
+            </a>
+            <Link href={`/profile/${student.rollno}`}>
+              <a>Profile</a>
+            </Link>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={() => handleViewProfile(student.rollno.toString())}
+                >
+                  View Profile
+                </button>
+                <button onClick={() => handleEditStudent(student)}>Edit</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <button onClick={handlePrint}>Print Selected Students</button>
+      {showPrintComponent && <PrintContent />}
+      {selectedProfileId && (
+        <Profile
+          rollno={selectedProfileId}
+          name={""}
+          branch={""}
+          semester={0}
+          marks={0}
+          subject={""}
+        />
+      )}
+
+      {/* Admin functionalities (conditionally render) */}
+      {isAdmin && (
+        <div>
+          <h2>Admin Panel</h2>
+          {/* Edit functionality (placeholder, replace with actual implementation) */}
+          <button disabled={!selectedStudentId}>Edit Selected Student</button>
+
+          {/* Add other admin functionalities here (e.g., add new student, delete student) */}
+          <button>Add New Student</button>
+          <button disabled={!selectedStudents.length}>
+            Delete Selected Students
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default StudentsList;
