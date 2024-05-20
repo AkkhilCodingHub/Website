@@ -3,15 +3,10 @@ import bcrypt from 'bcrypt'; // For secure password hashing
 import { changedb } from '../../../services/mongo';
 import { Collection } from 'mongoose';
 import { ObjectId } from 'mongodb'; // Correctly import ObjectId
+import { Admin } from '@/types/admin';
 const router = express.Router();
 
 const { verifyAdminToken, generateAdminToken } = require('./auth'); // Replace with your authentication logic
-
-// Interface for Admin data (replace with your actual model)
-interface Admin {
-  id: number;
-  pin: string; // Hashed pin
-}
 
 export async function getAdminById(id: string): Promise<Admin | null> {
   const db = await changedb(); // Replace with your database name

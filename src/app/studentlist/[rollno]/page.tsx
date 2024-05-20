@@ -1,114 +1,103 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Select from "react-select"; // Multi-column selection
-import {
-  PDFDownloadLink,
-  Document,
-  Page,
-  Text,
-  View,
-} from "@react-pdf/renderer";
-import Link from "next/link"; // For navigating to profile page
-import axios from "axios";
-import { Student } from "@/types/admin";
-// Assuming you have a component for displaying student profiles
-import Profile from "@/app/profile/page"; // Replace with your actual profile component path
+import Select from "react-select"; // Multi-column selection component
+import Link from "next/link"; // Component for client-side navigation
+import axios from "axios"; // HTTP client for making requests
+import { Student } from "@/types/admin"; // Type definition for Student
+import Profile from "@/app/profile/page"; // Profile component for student details
+import jsPDF from "jspdf"; // PDF generation library
 
+// Main component for displaying the list of students
 const StudentsList: React.FC = () => {
-  const router = useRouter();
-  const { branch, semester } = useParams(); // Access query parameters
+  const router = useRouter(); // Hook for router instance
+  const { branch, semester } = useParams(); // Access query parameters for branch and semester
 
-  const [students, setStudents] = useState<Student[]>([]); // Use sample or mock data
+  // State for storing list of students
+  const [students, setStudents] = useState<Student[]>([]);
+  // State for storing the ID of the currently selected student
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
     null
   );
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([]); // Array of selected student roll numbers
+  // State for storing the roll numbers of selected students
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  // State for storing the ID of the profile being viewed
   const [selectedProfileId, setSelectedProfileId] = useState<number | null>(
     null
   );
+  // State to toggle visibility of the print component
   const [showPrintComponent, setShowPrintComponent] = useState(false);
+  // State for storing names of students selected for printing
   const [selectedStudentNames, setSelectedStudentNames] = useState<string[]>(
     []
   );
 
-  // Replace this with your actual student data fetching logic (not HSBTΕ API)
+  // Effect for fetching student data based on branch and semester
   useEffect(() => {
     const fetchData = async () => {
       const url = `/api/students?branch=${branch}&semester=${semester}`;
-      console.log("API URL:", url);
+      console.log("API URL:", url); // Log the constructed URL for debugging
 
-      const response = await axios.get(url); // Assuming API endpoint
-      setStudents(response.data);
+      const response = await axios.get(url); // Fetch data from API
+      setStudents(response.data); // Update state with fetched data
     };
 
     fetchData();
-  }, [branch, semester]); // Re-run effect when branch or semester changes
+  }, [branch, semester]); // Dependency array to re-run effect on change
 
+  // Handler for selecting/deselecting a student
   const handleStudentSelect = (student: Student) => {
-    const studentRollNo = student.rollno; // Assuming 'rollno' is the property for student ID
+    const studentRollNo = student.rollno;
 
     if (selectedStudents.includes(studentRollNo.toString())) {
-      // Deselect student if already selected
+      // Remove student from selection if already selected
       setSelectedStudents(
         selectedStudents.filter((rollNo) => rollNo !== studentRollNo.toString())
       );
     } else {
-      // Select student if not already selected
+      // Add student to selection if not already selected
       setSelectedStudents([...selectedStudents, studentRollNo.toString()]);
     }
   };
 
+  // Handler for clicking on a student name
   const handleStudentClick = (rollno: number) => {
-    // Navigate to student profile page with student ID as a parameter
-    router.push(`/profile/${rollno}`); // Use router.push for navigation
+    router.push(`/profile/${rollno}`); // Navigate to the profile page of the student
   };
 
+  // Handler for initiating the print process
   const handlePrint = async () => {
     const names = students
       .filter((student) => selectedStudents.includes(student.rollno.toString()))
       .map((student) => student.name);
-    setSelectedStudentNames(names);
-    setShowPrintComponent(true);
+    setSelectedStudentNames(names); // Set names of students to be printed
+    setShowPrintComponent(true); // Show the print component
   };
 
+  // Component for rendering the print content
   const PrintContent: React.FC = () => {
-    if (!selectedStudentNames.length) return null; // Correctly returns null when there are no names
+    if (!selectedStudentNames.length) return null; // Return null if no names to print
 
-    return (
-      <PDFDownloadLink
-        document={
-          <Document>
-            <Page>
-              <Text>Selected Students:</Text>
-              <ol style={{ marginLeft: 20 }}>
-                {selectedStudentNames.map((name) => (
-                  <li key={name}>{name}</li>
-                ))}
-              </ol>
-            </Page>
-          </Document>
-        }
-        fileName="selected_students.pdf"
-      >
-        {({ blob, url }) => (
-          <button
-            onClick={() => blob && window.open(url?.toString(), "_blank")}
-          >
-            Print Selected Students
-          </button>
-        )}
-      </PDFDownloadLink>
-    );
+    const generatePDF = () => {
+      const doc = new jsPDF();
+      doc.text("Selected Students:", 10, 10);
+      selectedStudentNames.forEach((name, index) => {
+        doc.text(`${index + 1}. ${name}`, 10, 20 + 10 * index);
+      });
+      doc.save("selected_students.pdf");
+    };
+
+    return <button onClick={generatePDF}>Print Selected Students</button>;
   };
 
-  // Admin functionalities
-  const [isAdmin, setIsAdmin] = useState(false); // Replace with logic to check for admin user
+  // State and handlers for admin functionalities
+  const [isAdmin, setIsAdmin] = useState(false); // State to check if user is admin
 
   const handleViewProfile = (studentId: string) => {
-    setSelectedStudentId(studentId);
+    setSelectedStudentId(studentId); // Set the ID of the student whose profile is to be viewed
   };
 
+  // State and handler for filter options in the select component
   const [filterOptions, setFilterOptions] = useState<{ [key: string]: string }>(
     {}
   );
@@ -119,9 +108,10 @@ const StudentsList: React.FC = () => {
     }); // Update filter state
   };
 
+  // Handler for editing student information
   const handleEditStudent = (student: Student) => {
     console.log("Edit student:", student);
-    // Replace with actual logic for editing student data (e.g., navigate to edit form)
+    // Placeholder for actual edit logic
   };
 
   return (
@@ -147,7 +137,6 @@ const StudentsList: React.FC = () => {
                 ? "Deselect"
                 : "Select"}
             </button>
-            {/* Make the student name clickable and call handleStudentClick when clicked */}
             <a
               onClick={() => handleStudentClick(student.rollno)}
               style={{ cursor: "pointer", color: "blue" }}
@@ -184,14 +173,10 @@ const StudentsList: React.FC = () => {
         />
       )}
 
-      {/* Admin functionalities (conditionally render) */}
       {isAdmin && (
         <div>
           <h2>Admin Panel</h2>
-          {/* Edit functionality (placeholder, replace with actual implementation) */}
           <button disabled={!selectedStudentId}>Edit Selected Student</button>
-
-          {/* Add other admin functionalities here (e.g., add new student, delete student) */}
           <button>Add New Student</button>
           <button disabled={!selectedStudents.length}>
             Delete Selected Students
