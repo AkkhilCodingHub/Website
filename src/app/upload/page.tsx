@@ -1,5 +1,4 @@
 "use client";
-import axios from 'axios';
 import { Student } from '../../types/admin';
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone'; // Assuming you're using react-dropzone
@@ -11,6 +10,7 @@ interface StudentUploadProps {
 const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -30,29 +30,29 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       return; // Handle no file selected case
     }
 
+    setIsLoading(true); // Start loading
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Replace with your actual API route for handling student upload
-      const response = await axios.post('/api/upload-student', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const response = await fetch('/api/upload-student', {
+        method: 'POST',
+        body: formData,
       });
 
-      if (response.status >= 200 && response.status < 400) {
-        // Request was successful
-        const uploadedStudents = response.data;
+      if (response.ok) {
+        const uploadedStudents = await response.json();
         onUploadSuccess(uploadedStudents);
-        setFile(null);
+        setFile(null); // Reset file after successful upload
       } else {
-        // Handle error cases (e.g., status code 4xx or 5xx)
-        throw new Error('Error uploading students');
+        const errorText = await response.text(); // Get error message from server if possible
+        throw new Error(errorText || 'Error uploading students');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading students:', error);
-      // Additional error handling or fallback logic
+      setUploadError(error.message || 'Failed to upload');
+    } finally {
+      setIsLoading(false); // End loading
     }
   };
 
@@ -66,9 +66,13 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
           <p className="text-gray-500">Drag & drop or click to select an Excel file with student data.</p>
         )}
       </div>
-      <button onClick={handleUpload} disabled={!file} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
-        Upload Students
-      </button>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <button onClick={handleUpload} disabled={!file || isLoading} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50">
+          Upload Students
+        </button>
+      )}
       {uploadError && <p className="error text-red-500">{uploadError}</p>}
     </div>
   )

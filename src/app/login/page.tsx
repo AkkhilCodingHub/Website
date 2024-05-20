@@ -2,7 +2,7 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-interface LoginProps {
+export interface LoginProps {
   // Initial values
   username?: string;
   pin?: string;

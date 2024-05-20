@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import bcrypt from 'bcrypt'; // For secure password hashing
 import { changedb } from '@/services/mongo';
 import { Collection } from 'mongoose';
+import { ObjectId } from 'mongodb'; // Correctly import ObjectId
 const router = express.Router();
 
 const { verifyAdminToken, generateAdminToken } = require('./auth'); // Replace with your authentication logic
@@ -16,8 +17,8 @@ export async function getAdminById(id: string): Promise<Admin | null> {
   const db = await changedb(); // Replace with your database name
   const admins = db.collection("admins") as Collection<Admin>; // Replace with your collection name
 
-  // Cast string to ObjectId before using it in the filter
-  const objectId = new objectId(id);
+  // Correctly use ObjectId for MongoDB document lookup
+  const objectId = new ObjectId(id);
   return await admins.findOne({ _id: objectId });
 }
 
@@ -25,25 +26,26 @@ export async function updateAdminPin(id: string, hashedPin: string): Promise<voi
   const db = await changedb(); // Replace with your database name
   const admins = db.collection<Admin>('admins'); // Replace with your collection name
 
-  // Cast string to ObjectId before using it in the filter
-  const objectId = new objectId(id);
+  // Correctly use ObjectId for MongoDB document update
+  const objectId = new ObjectId(id);
   await admins.updateOne({ _id: objectId }, { $set: { pin: hashedPin } });
 }
 
+interface VerifyAdminTokenRequest extends Request {
+  admin: Admin;
+}
 
-type VerifyAdminTokenRequest = Request & { admin: Admin }; // Extend Request with admin object
-
-router.post('/update-pin', verifyAdminToken as (req: VerifyAdminTokenRequest, res: Response) => void, async (req: { body: { newPin: any; }; admin: { id: number; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { message: string; }): void; new(): any; }; }; json: (arg0: { message: string; token: any; }) => void; }) => {
+router.post('/update-pin', verifyAdminToken, async (req: Request, res: Response) => {
+  const adminReq = req as VerifyAdminTokenRequest;
   try {
-    const { newPin } = req.body;
+    const { newPin } = adminReq.body;
 
     // Validate new pin (optional)
     if (!newPin || newPin.length < 8) {
       return res.status(400).json({ message: 'Invalid new pin (minimum 8 characters)' });
     }
-
     // Retrieve current admin user from database
-    const currentAdmin = await db.getAdminById(req.admin.id);
+    const currentAdmin = await getAdminById(adminReq.admin.id.toString());
 
     if (!currentAdmin) {
       return res.status(401).json({ message: 'Unauthorized' }); // Handle missing admin user
@@ -53,7 +55,7 @@ router.post('/update-pin', verifyAdminToken as (req: VerifyAdminTokenRequest, re
     const hashedPin = await bcrypt.hash(newPin, 10);
 
     // Update admin pin in database
-    await db.updateAdminPin(currentAdmin.id, hashedPin);
+    await updateAdminPin(currentAdmin.id.toString(), hashedPin);
 
     // Generate a new admin token on successful update (optional)
     const newToken = generateAdminToken(currentAdmin);

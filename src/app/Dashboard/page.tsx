@@ -1,9 +1,24 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { Admin, Teacher } from '@/types/admin'; // Import admin and teacher data types
 import loginPage from '../login/page'; // Import login and teacher functions from auth.js (assuming)
 import { getTeachers, addTeacher, removeTeacher } from '@/types/dbstruct';
+import { LoginProps } from '../login/page'; // Import LoginProps interface from login/page.tsx
+
+// implementation of updateAdminPin
+async function updateAdminPin(newPin: string): Promise<Response> {
+  // Example API call to update the admin pin
+  const response = await fetch('/api/update-Admin-Pin', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ pin: newPin }),
+  });
+  return response;
+}
+
 interface AdminDashboardProps {
   user: Admin | null;
 }
@@ -42,36 +57,58 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     fetchTeachers();
   }, [isLoggedIn]);
 
-  const handleLogin = async () => {
-    try {
-      const loginResponse = await loginPage(adminPin); // Pass retrieved adminPin
-      if (loginResponse === "success") { // Assuming loginPage returns "success" on success
-        setIsLoggedIn(true);
-        localStorage.setItem('adminUser', JSON.stringify(true)); // Set admin logged in flag
-      } else {
-        console.error('Login failed:');
-        // Display error message to user
+  const handleLogin = async (username: string, pin: string) => {
+    if (pin === process.env.REACT_APP_ADMIN_PIN) {
+      // Assuming REACT_APP_ADMIN_PIN is the environment variable for the admin pin
+      setIsLoggedIn(true);
+      localStorage.setItem('adminUser', JSON.stringify(true));
+      router.push('/Dashboard');
+    } else {
+      try {
+        const onLogin = (username: string, pin: string) => {
+          console.log(`Logged in as ${username} with pin ${pin}`);
+          setIsLoggedIn(true);
+          router.push('/userDashboard');
+        };
+
+        const loginProps: LoginProps = { // Now using the imported LoginProps interface
+          username,
+          pin,
+          onLogin,
+          errorMessage: '',
+          isLoading: false,
+          successMessage: ''
+        };
+
+        const loginResponse = await loginPage(loginProps);
+        if (loginResponse === "success") {
+          setIsLoggedIn(true);
+          router.push('/Dashboard');
+        } else {
+          console.error('Login failed:');
+        }
+      } catch (error) {
+        console.error('Error during login:', error);
       }
-    } catch (error) {
-      console.error('Error during login:', error);
-      // Handle errors appropriately (e.g., display error message)
-    } finally {
-      setAdminPin(''); // Clear input field after login attempt
     }
   };
-  
 
-  const handleResetAdminPassword = async () => {
-    // Implement logic to securely reset admin password (e.g., send reset token)
+  const handleResetAdminPassword = async (newAdminPin: string) => {
+    // Implement logic to securely reset admin password and update in the database
     try {
       console.log('Resetting admin password...', resetPasswordEmail);
+      const response = await updateAdminPin(newAdminPin);
+      if (response.ok) {
+        console.log('Admin password reset successfully.');
+      } else {
+        throw new Error('Failed to reset admin password.');
+      }
       setResetPasswordEmail(''); // Clear input field
     } catch (error) {
       console.error('Error resetting admin password:', error);
       // Handle errors appropriately (e.g., display error message)
     }
   };
-
   const handleAddTeacher = async () => {
     try {
       if (!newTeacherName || !newTeacherPin) {
@@ -106,25 +143,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const handleAdminPinChangeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!showAdminPinPopup) return; // Avoid unnecessary actions
+    if (!showAdminPinPopup) return;
 
-    // Implement logic to securely update admin pin on the server (replace with your API call)
     try {
-      const updateAdminPinResponse = await updateAdminPin(adminPin); // Replace with actual API call
+      // Ensure updateAdminPin is defined or imported
+      const updateAdminPinResponse = await updateAdminPin(adminPin);
       if (updateAdminPinResponse.ok) {
         console.log('Admin pin updated successfully.');
-        setShowAdminPinPopup(false); // Close pop-up after successful update
-        setAdminPin(''); // Clear login input field (optional)
+        setShowAdminPinPopup(false);
+        setAdminPin('');
       } else {
         const data = await updateAdminPinResponse.json();
         console.error('Error updating admin pin:', data.message);
-        // Handle errors appropriately (e.g., display error message in the pop-up)
       }
     } catch (error) {
       console.error('Error updating admin pin:', error);
-      // Handle errors appropriately (e.g., display generic error message in the pop-up)
     } finally {
-      setAdminPin(''); // Clear admin pin input field after submission (optional)
+      setAdminPin('');
     }
   };
 
@@ -212,12 +247,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         placeholder="Admin Pin"
         className="input-field"
       />
-      <button onClick={handleLogin} className="login-btn">
-        Login
+      <button onClick={() => handleLogin('admin', adminPin)} className="login-btn">
+        Login as Admin
       </button>
-      <p>
-        Forgot your pin? {/* Placeholder for password reset functionality */}
-      </p>
+      <button onClick={() => handleLogin('exampleUser', 'examplePin')} className="login-btn">
+        Login as User
+      </button>
+      <button onClick={() => handleResetAdminPassword('newAdminPin')}>
+        Forgot your pin? 
+      </button>
     </div>
   )
 </div>

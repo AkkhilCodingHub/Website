@@ -17,6 +17,8 @@ const StudentsList: React.FC = () => {
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]); // Array of selected student roll numbers
   const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
+  const [showPrintComponent, setShowPrintComponent] = useState(false);
+  const [selectedStudentNames, setSelectedStudentNames] = useState<string[]>([]);
 
   // Replace this with your actual student data fetching logic (not HSBTΕ API)
   useEffect(() => {
@@ -44,41 +46,43 @@ const StudentsList: React.FC = () => {
    }
   };
 
-  const handleStudentClick = (studentId: string) => {
+  const handleStudentClick = (rollno: Number) => {
    // Navigate to student profile page with student ID as a parameter
-   router.push(`/studentlist/${studentId}`); // Use router.push for navigation
+   router.push(`/profile/${rollno}`); // Use router.push for navigation
   };
 
   const handlePrint = async () => {
-      // Implement logic to print selected student profiles based on selectedStudents array
-     const selectedStudentNames = students.filter((student) =>
+    const names = students.filter(student =>
       selectedStudents.includes(student.rollno.toString())
-     ).map((student) => student.name); // Extract names of filtered students
+    ).map(student => student.name);
+    setSelectedStudentNames(names);
+    setShowPrintComponent(true);
+  };
 
-      const doc = (
+  const PrintContent: React.FC = () => {
+    if (!selectedStudentNames.length) return null; // Correctly returns null when there are no names
+
+    return (
+      <PDFDownloadLink document={
         <Document>
           <Page>
-           <Text>Selected Students:</Text>
-           <ol style={{ marginLeft: 20 }}>
-             {selectedStudentNames.map((name) => (
-               <li key={name}>{name}</li>
-             ))}
-           </ol>
+            <Text>Selected Students:</Text>
+            <ol style={{ marginLeft: 20 }}>
+              {selectedStudentNames.map(name => (
+                <li key={name}>{name}</li>
+              ))}
+            </ol>
           </Page>
         </Document>
-      );
-      // **Change:** Wrap the JSX content in a function that returns it
-      const PrintContent = () => (
-        <PDFDownloadLink document={doc} fileName="selected_students.pdf">
-          {({ blob, url }) => (
-            <button onClick={() => blob && window.open(url?.toString(), '_blank')}>
-              Print Selected Students
-            </button>
-          )}
-        </PDFDownloadLink>
-      );
-      return PrintContent();
-    };
+      } fileName="selected_students.pdf">
+        {({ blob, url }) => (
+          <button onClick={() => blob && window.open(url?.toString(), '_blank')}>
+            Print Selected Students
+          </button>
+        )}
+      </PDFDownloadLink>
+    );
+  };
 
   // Admin functionalities
   const [isAdmin, setIsAdmin] = useState(false); // Replace with logic to check for admin user
@@ -99,7 +103,6 @@ const StudentsList: React.FC = () => {
 return (
     <div>
       <h1>Students List</h1>
-       {/* Select component for filtering */}
        <Select
         options={Object.keys(filterOptions).map((key) => ({ value: key, label: filterOptions[key] }))}
         isMulti // Allow multiple selections
@@ -109,10 +112,13 @@ return (
       <ul>
         {students.map((student) => (
           <li key={student.rollno}>
-            {student.name} 
             <button onClick={() => handleStudentSelect(student)}>
               {selectedStudents.includes(student.rollno.toString()) ? 'Deselect' : 'Select'}
             </button>
+            {/* Make the student name clickable and call handleStudentClick when clicked */}
+            <a onClick={() => handleStudentClick(student.rollno)} style={{ cursor: 'pointer', color: 'blue' }}>
+              {student.name}
+            </a>
             <Link href={`/profile/${student.rollno}`}>
               <a>Profile</a>
             </Link>
@@ -127,6 +133,7 @@ return (
       </ul>
       
       <button onClick={handlePrint}>Print Selected Students</button>
+      {showPrintComponent && <PrintContent />}
       {selectedProfileId && <Profile rollno={selectedProfileId} name={''} branch={''} semester={0} marks={0} subject={''} />}
 
       {/* Admin functionalities (conditionally render) */}
