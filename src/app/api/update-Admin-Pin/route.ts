@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import bcrypt from 'bcrypt'; // For secure password hashing
-import { changedb } from '@/services/mongo';
+import { changedb } from '../../../services/mongo';
 import { Collection } from 'mongoose';
 import { ObjectId } from 'mongodb'; // Correctly import ObjectId
 const router = express.Router();

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import multer, { FileFilterCallback } from 'multer';
-import { changedb } from '@/services/mongo';
-import { Student } from '@/types/admin';
+import { changedb } from '../../../services/mongo';
+import { Student } from '../../../types/admin';
 import ExcelJS from 'exceljs';
 
 // Set up multer for memory storage

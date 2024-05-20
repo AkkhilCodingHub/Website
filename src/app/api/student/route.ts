@@ -1,5 +1,5 @@
-import { changedb } from '@/services/mongo';
-import { Student } from '@/types/admin';
+import { changedb } from '../../../services/mongo';
+import { Student } from '../../../types/admin';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[]>) {
