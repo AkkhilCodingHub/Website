@@ -4,9 +4,9 @@ import { changedb } from '../../../services/mongo';
 import { Collection } from 'mongoose';
 import { ObjectId } from 'mongodb'; // Correctly import ObjectId
 import { Admin } from '@/types/admin';
-const router = express.Router();
+import { verifyAdminToken, generateAdminToken } from '@/auth/page';
 
-const { verifyAdminToken, generateAdminToken } = require('./auth'); // Replace with your authentication logic
+const router = express.Router();
 
 export async function getAdminById(id: string): Promise<Admin | null> {
   const db = await changedb(); // Replace with your database name
