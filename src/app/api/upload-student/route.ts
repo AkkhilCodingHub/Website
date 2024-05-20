@@ -74,42 +74,57 @@ const processStudentData = async (buffer: Buffer): Promise<Student[]> => {
  * @param res - The HTTP response object.
  */
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  console.log('Uploading student data...');
-  // Use multer to handle the file upload
-  multerUpload(req as any, res as any, async (err) => {
-    if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-      return res.status(500).json({ error: err.message });
-    } else if (err) {
-      // An unknown error occurred when uploading.
-      return res.status(500).json({ error: 'Unknown error occurred when uploading.' });
-    }
+  // Handle OPTIONS request for CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.status(204).end();
+    return;
+  }
 
-    const reqWithFile = req as NextApiRequestWithFile;
-    if (!reqWithFile.file) {
-      return res.status(400).send('No file uploaded');
-    }
-
-    try {
-      const students = await processStudentData(reqWithFile.file.buffer);
-      const csvData = convertToCSV(students);
-      const db = await changedb();
-      const collection = db.collection<Student>('students');
-      
-      if (Array.isArray(students) && students.length > 0) {
-        await collection.insertMany(students); // Insert the array of students directly
-      } else if (students && students.length === 1) {
-        await collection.insertOne(students[0]); // Insert a single student
-      } else {
-        throw new Error('No student data to upload');
+  // Handle POST request
+  if (req.method === 'POST') {
+    console.log('Uploading student data...');
+    // Use multer to handle the file upload
+    multerUpload(req as any, res as any, async (err) => {
+      if (err instanceof multer.MulterError) {
+        // A Multer error occurred when uploading.
+        return res.status(500).json({ error: err.message });
+      } else if (err) {
+        // An unknown error occurred when uploading.
+        return res.status(500).json({ error: 'Unknown error occurred when uploading.' });
       }
 
-      await db.close();
-      res.status(200).json({ data: csvData });
-    } catch (error) {
-      console.error('Error processing upload:', error);
-      res.status(500).json({ error: 'Failed to process uploaded file.' });
-    }
-  });
-};
+      const reqWithFile = req as NextApiRequestWithFile;
+      if (!reqWithFile.file) {
+        return res.status(400).send('No file uploaded');
+      }
 
+      try {
+        const students = await processStudentData(reqWithFile.file.buffer);
+        const csvData = convertToCSV(students);
+        const db = await changedb();
+        const collection = db.collection<Student>('students');
+        
+        if (Array.isArray(students) && students.length > 0) {
+          await collection.insertMany(students); // Insert the array of students directly
+        } else if (students && students.length === 1) {
+          await collection.insertOne(students[0]); // Insert a single student
+        } else {
+          throw new Error('No student data to upload');
+        }
+
+        await db.close();
+        res.status(200).json({ data: csvData });
+      } catch (error) {
+        console.error('Error processing upload:', error);
+        res.status(500).json({ error: 'Failed to process uploaded file.' });
+      }
+    });
+  } else {
+    // Respond with 405 Method Not Allowed if not POST
+    res.setHeader('Allow', 'POST, OPTIONS');
+    res.status(405).end('Method Not Allowed');
+  }
+};
