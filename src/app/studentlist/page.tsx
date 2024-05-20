@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Select from 'react-select'; // Multi-column selection
 import { PDFDownloadLink, Document, Page, Text, View } from '@react-pdf/renderer';
-import  Link  from 'next/link'; // For navigating to profile page
+import Link from 'next/link'; // For navigating to profile page
 import axios from 'axios';
-import {Student} from '@/types/admin'
+import { Student } from '@/types/admin'
 // Assuming you have a component for displaying student profiles
 import Profile from '../profile/page'; // Replace with your actual profile component path
 
@@ -22,33 +22,32 @@ const StudentsList: React.FC = () => {
 
   // Replace this with your actual student data fetching logic (not HSBTΕ API)
   useEffect(() => {
-  const fetchData = async () => {
-    const url = `/api/students?branch=${branch}&semester=${semester}`;
-    console.log('API URL:', url);
+    const fetchData = async () => {
+      const url = `/api/students?branch=${branch}&semester=${semester}`;
+      console.log('API URL:', url);
 
-    const response = await axios.get(`/api/students?branch=${branch}&semester=${semester}`); // Assuming API endpoint
-    setStudents(response.data);
-  };
+      const response = await axios.get(url); // Assuming API endpoint
+      setStudents(response.data);
+    };
 
-  fetchData();
+    fetchData();
   }, [branch, semester]); // Re-run effect when branch or semester changes
 
+  const handleStudentSelect = (student: Student) => {
+    const studentRollNo = student.rollno; // Assuming 'rollno' is the property for student ID
 
-  const handleStudentSelect = (Student : Student) => {
-   const studentRollNo = Student.rollno; // Assuming 'rollno' is the property for student ID
-  
-   if (selectedStudents.includes(studentRollNo.toString())) {
-    // Deselect student if already selected
-     setSelectedStudents(selectedStudents.filter((rollNo) => rollNo !== studentRollNo.toString()));
-   }  else {
-     // Select student if not already selected
-    setSelectedStudents([...selectedStudents, studentRollNo.toString()]);
-   }
+    if (selectedStudents.includes(studentRollNo.toString())) {
+      // Deselect student if already selected
+      setSelectedStudents(selectedStudents.filter((rollNo) => rollNo !== studentRollNo.toString()));
+    } else {
+      // Select student if not already selected
+      setSelectedStudents([...selectedStudents, studentRollNo.toString()]);
+    }
   };
 
-  const handleStudentClick = (rollno: Number) => {
-   // Navigate to student profile page with student ID as a parameter
-   router.push(`/profile/${rollno}`); // Use router.push for navigation
+  const handleStudentClick = (rollno: number) => {
+    // Navigate to student profile page with student ID as a parameter
+    router.push(`/profile/${rollno}`); // Use router.push for navigation
   };
 
   const handlePrint = async () => {
@@ -86,24 +85,25 @@ const StudentsList: React.FC = () => {
 
   // Admin functionalities
   const [isAdmin, setIsAdmin] = useState(false); // Replace with logic to check for admin user
-  
+
   const handleViewProfile = (studentId: string) => {
     setSelectedStudentId(studentId);
   };
-  
+
   const [filterOptions, setFilterOptions] = useState<{ [key: string]: string }>({});
   const handleFilterChange = (selectedOption: any) => {
     setFilterOptions({ ...filterOptions, [selectedOption.value]: selectedOption.label }); // Update filter state
-    
-    // Placeholder for edit functionality (implementation details depend on your requirements)
-    const handleEditStudent = (student: Student) => {
+  };
+
+  const handleEditStudent = (student: Student) => {
     console.log('Edit student:', student);
     // Replace with actual logic for editing student data (e.g., navigate to edit form)
   };
-return (
+
+  return (
     <div>
       <h1>Students List</h1>
-       <Select
+      <Select
         options={Object.keys(filterOptions).map((key) => ({ value: key, label: filterOptions[key] }))}
         isMulti // Allow multiple selections
         value={Object.keys(filterOptions).map((key) => ({ value: key, label: filterOptions[key] }))} // Pre-select based on filter state
@@ -131,7 +131,7 @@ return (
           </li>
         ))}
       </ul>
-      
+
       <button onClick={handlePrint}>Print Selected Students</button>
       {showPrintComponent && <PrintContent />}
       {selectedProfileId && <Profile rollno={selectedProfileId} name={''} branch={''} semester={0} marks={0} subject={''} />}
@@ -139,18 +139,17 @@ return (
       {/* Admin functionalities (conditionally render) */}
       {isAdmin && (
         <div>
-        <h2>Admin Panel</h2>
-        {/* Edit functionality (placeholder, replace with actual implementation) */}
-        <button disabled={!selectedStudentId}>Edit Selected Student</button>
+          <h2>Admin Panel</h2>
+          {/* Edit functionality (placeholder, replace with actual implementation) */}
+          <button disabled={!selectedStudentId}>Edit Selected Student</button>
 
-        {/* Add other admin functionalities here (e.g., add new student, delete student) */}
-        <button>Add New Student</button>
-        <button disabled={!selectedStudents.length}>Delete Selected Students</button>
-      </div>
-    )}
-  </div>
-    );
-  };
+          {/* Add other admin functionalities here (e.g., add new student, delete student) */}
+          <button>Add New Student</button>
+          <button disabled={!selectedStudents.length}>Delete Selected Students</button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default StudentsList;

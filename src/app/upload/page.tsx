@@ -35,7 +35,11 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await axios.post('/api/upload-student', formData);
+      const response = await axios.post('/api/upload-student', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       if (response.status === 200) {
         const uploadedStudents = response.data;
         onUploadSuccess(uploadedStudents);
@@ -71,7 +75,7 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       )}
       {uploadError && <p className="error text-red-500">{uploadError}</p>}
     </div>
-  )
+  );
 };
 
 export default StudentUpload;
