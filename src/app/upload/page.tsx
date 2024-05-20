@@ -35,18 +35,29 @@ const StudentUpload: React.FC<StudentUploadProps> = ({ onUploadSuccess }) => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await axios.post('/api/upload-student', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
+      // Check if the server supports the POST method for this endpoint
+      const options = {
+        method: 'OPTIONS',
+        url: '/api/upload-student',
+      };
+      const preflightResponse = await axios(options);
+
+      if (preflightResponse.status === 204 || preflightResponse.status === 200) { // 204 No Content or 200 OK means allowed
+        const response = await axios.post('/api/upload-student', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        if (response.status === 200) {
+          const uploadedStudents = response.data;
+          onUploadSuccess(uploadedStudents);
+          setFile(null); // Reset file after successful upload
+        } else {
+          const errorText = response.statusText; // Get error message from server if possible
+          throw new Error(errorText || 'Error uploading students');
         }
-      });
-      if (response.status === 200) {
-        const uploadedStudents = response.data;
-        onUploadSuccess(uploadedStudents);
-        setFile(null); // Reset file after successful upload
       } else {
-        const errorText = response.statusText; // Get error message from server if possible
-        throw new Error(errorText || 'Error uploading students');
+        throw new Error('POST method not allowed for this endpoint');
       }
     } catch (error: any) {
       console.error('Error uploading students:', error);
