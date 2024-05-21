@@ -72,7 +72,7 @@ const Homepage: React.FC = () => {
   
   // Render method returns the JSX for the homepage
   return (
-        <div className="min-h-screen bg-cover bg-no-repeat bg-center bg-url bg-[url('/image.svg')]" style={{ backgroundImage: `url(/image.svg)` }}> 
+        <div className="min-h-screen bg-cover bg-no-repeat bg-center bg-url bg-[url('./image.jpeg')]" style={{ backgroundImage: `url(./image.jpeg)` }}>
           <div className="container mx-auto px-4 py-8"> {/* Container for layout */}
     
             {/* Login/Logout Button */}
