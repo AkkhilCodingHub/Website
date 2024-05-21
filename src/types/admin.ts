@@ -22,7 +22,6 @@ export interface User{
 }
 
 export interface Student {
-  // Define your student data structure here (e.g., name, branch, semester)
   name: string;
   rollno: number;
   branch: string;
@@ -30,6 +29,8 @@ export interface Student {
   subject: string;
   marks: number;
 }
+
+export type StudentData = Student | Student[];
 
 export interface StudentProfile {
   name: string;

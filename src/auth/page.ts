@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Admin } from '@/types/admin';
-
+import jwt from 'jsonwebtoken';
 
 interface VerifyAdminTokenRequest extends Request {
   admin: Admin;
@@ -12,15 +12,17 @@ export function verifyAdminToken(req: Request, res: Response, next: NextFunction
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
-
   try {
-    // Assuming verifyToken is a function that validates the token and returns the decoded token if valid
-    const decoded = verifyToken(token);
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT secret is undefined');
+    }
+    const decoded = jwt.verify(token, secret);
     if (!decoded) {
       return res.status(401).json({ message: 'Invalid token' });
     }
     // Attach admin details to the request after successful verification
-    (req as VerifyAdminTokenRequest).admin = decoded.admin;
+    (req as VerifyAdminTokenRequest).admin = decoded as Admin;
     next();
   } catch (error) {
     console.error('Token verification failed:', error);
@@ -30,22 +32,15 @@ export function verifyAdminToken(req: Request, res: Response, next: NextFunction
 
 // Function to generate a new admin token
 export function generateAdminToken(admin: Admin) {
-  // Assuming generateToken is a function that takes admin details and returns a signed JWT
-  return generateToken({
-    adminId: admin.id,
-    adminPin: admin.pin
-  });
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT secret is undefined');
+  }
+  const token = jwt.sign(
+    { adminId: admin.id, adminPin: admin.pin },
+    secret,
+    { expiresIn: '1h' }
+  );
+  return token;
 }
 
-// Helper functions (assuming they exist)
-function verifyToken(token: string) {
-  // Logic to verify the token
-  // This is a placeholder, replace with actual token verification logic
-  return { admin: { id: '123', pin: 'hashedPin' } }; // Mocked decoded token
-}
-
-function generateToken(details: { adminId: string; adminPin: string }) {
-  // Logic to generate a token
-  // This is a placeholder, replace with actual token generation logic
-  return 'generatedToken'; // Mocked token
-}
