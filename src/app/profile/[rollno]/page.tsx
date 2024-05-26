@@ -45,7 +45,7 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="profile-container px-4 py-8 bg-blue-600 rounded-md shadow-md">
+    <div className="profile-container px-4 py-8 w-full h-full fixed top-0 left-0 bg-cover bg-[url('/image.jpeg')] rounded-md shadow-md">
       <h1>{student.name}</h1>
       <p className="text-white mb-2">Roll Number: {student.rollno}</p>
       <p className="text-white mb-2">Semester: {student.semester}</p>
@@ -57,17 +57,17 @@ const Profile: React.FC = () => {
             <th className="px-4 py-2 text-left font-medium text-gray-700 bg-gray-100">
               Subject
             </th>
-            <th className="px-4 py-2 text-left font-medium text-gray-700 bg-gray-100">
+            <th className="px-4 py-2 text-left font-medium text-gray-700 border-r border-gray-500 bg-gray-100">
               Marks
             </th>
           </tr>
         </thead>
         <tbody>
           <tr className="border-b border-gray-200 hover:bg-gray-100">
-            <td className="px-4 py-2 text-left text-gray-700 bg-red-500">
+            <td className="px-4 py-2 text-left text-gray-700 bg-sky-600 w-1/2 ">
               {student.subject}
             </td>
-            <td className="px-4 py-2 text-left text-gray-700 bg-red-500">
+            <td className="px-4 py-2 text-left text-gray-700 bg-sky-600 w-1/2">
               {student.marks}
             </td>
           </tr>

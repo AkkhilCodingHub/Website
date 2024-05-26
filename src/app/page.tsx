@@ -118,7 +118,7 @@ const Homepage: React.FC = () => {
               name="branch"
               value={selectedBranch !== null ? selectedBranch : ""}
               onChange={handleBranchChange}
-              className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-300 bg-sky-600 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">-- Select Branch --</option>
               {branches.map((branch) => (
@@ -141,7 +141,7 @@ const Homepage: React.FC = () => {
                 name="semester"
                 value={semesters.length > 0 ? semesters[0].value : ""}
                 onChange={handleSemesterChange}
-                className="border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300  bg-sky-600 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {availableSemesters.map((semester) => (
                   <option key={semester.value} value={semester.value}>

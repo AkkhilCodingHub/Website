@@ -154,7 +154,7 @@ const StudentsList: React.FC = () => {
   console.log("Selected Student:", selectedStudent);
 
   return (
-    <div className="p-5 font-sans">
+    <div className="p-5 font-sans w-full h-full fixed top-0 left-0 bg-cover bg-[url('/image.jpeg')]">
       <h1 className="text-gray-800 border-b-2 border-gray-600">
         Students List
       </h1>
