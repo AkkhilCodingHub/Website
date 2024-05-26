@@ -1,39 +1,55 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios for making HTTP requests
-import { Student, StudentProfile } from "@/types/admin"; // Import Student and StudentProfile types
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { Student } from "@/types/admin"; // Import the Student type
 
-// Define the Profile component with Student type props
-const Profile: React.FC<Student> = ({ rollno }) => {
-  const [studentData, setStudentData] = useState<StudentProfile | null>(null); // Use StudentProfile type for state
+// Mock data for demonstration
+const mockStudents: Student[] = [
+  { name: "Arju", rollno: 1, branch: "Computer", semester: 3, subject: "Mathematics", marks: 85 },
+  { name: "Nikil", rollno: 2, branch: "Electronics", semester: 2, subject: "Physics", marks: 78 },
+  { name: "Manav", rollno: 3, branch: "Mechanical", semester: 4, subject: "Chemistry", marks: 88 },
+  { name: "karan", rollno: 4, branch: "Civil", semester: 1, subject: "English", marks: 92 },
+  { name: "angel", rollno: 5, branch: "Architecture", semester: 5, subject: "Biology", marks: 74 },
+];
 
-  // Fetch student profile data using axios and useEffect hook
+// Function to simulate fetching data based on roll number
+const fetchStudentData = async (rollno: number): Promise<Student | undefined> => {
+  // Simulate an API call
+  return mockStudents.find(student => student.rollno === rollno);
+};
+
+const Profile: React.FC = () => {
+  const [student, setStudent] = useState<Student | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const params = useParams<{ rollno: string }>(); // Specify the expected type of the parameters
+  const rollno = params.rollno; // Directly access the rollno parameter
+
   useEffect(() => {
-    const fetchStudentProfile = async () => {
-      try {
-        const response = await axios.get(`/api/students/${rollno}`);
-        setStudentData(response.data); // Set student data from response
-      } catch (error) {
-        console.error("Failed to fetch student data:", error); // Log error if request fails
-      }
-    };
-    fetchStudentProfile();
-  }, [rollno]); // Dependency array to re-run effect when rollno changes
+    if (rollno) {
+      const rollNumber = parseInt(rollno, 10);
+      fetchStudentData(rollNumber).then(data => {
+        setStudent(data ?? null); // Handle undefined case
+        setLoading(false);
+      }).catch(() => {
+        setLoading(false); // Handle errors appropriately in a real scenario
+      });
+    }
+  }, [rollno]);
 
-  // Render loading state if student data is not yet loaded
-  if (!studentData) {
+  if (loading) {
     return <p>Loading profile...</p>;
   }
 
-  // Render the student profile information
+  if (!student) {
+    return <p>Student data not available.</p>;
+  }
+
   return (
-    <div className="profile-container px-4 py-8 bg-white rounded-md shadow-md">
-      <h1>{studentData.name}</h1>
-      <p className="text-gray-500 mb-2">
-        Roll Number: {studentData.rollNumber}
-      </p>
-      <p className="text-gray-500 mb-2">Semester: {studentData.semester}</p>
-      <p className="text-gray-500 mb-2">Branch: {studentData.branch}</p>
+    <div className="profile-container px-4 py-8 bg-blue-600 rounded-md shadow-md">
+      <h1>{student.name}</h1>
+      <p className="text-white mb-2">Roll Number: {student.rollno}</p>
+      <p className="text-white mb-2">Semester: {student.semester}</p>
+      <p className="text-white mb-2">Branch: {student.branch}</p>
       <h2>Marks</h2>
       <table className="w-full table-auto rounded-md border border-gray-200">
         <thead>
@@ -47,17 +63,14 @@ const Profile: React.FC<Student> = ({ rollno }) => {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(studentData.marks).map(([subject, marks]) => (
-            <tr
-              key={subject}
-              className="border-b border-gray-200 hover:bg-gray-100"
-            >
-              <td className="px-4 py-2 text-left text-gray-700">{subject}</td>
-              <td className="px-4 py-2 text-left text-gray-700">
-                {typeof marks === "number" ? marks : "N/A"}
-              </td>
-            </tr>
-          ))}
+          <tr className="border-b border-gray-200 hover:bg-gray-100">
+            <td className="px-4 py-2 text-left text-gray-700 bg-red-500">
+              {student.subject}
+            </td>
+            <td className="px-4 py-2 text-left text-gray-700 bg-red-500">
+              {student.marks}
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -65,3 +78,4 @@ const Profile: React.FC<Student> = ({ rollno }) => {
 };
 
 export default Profile;
+
