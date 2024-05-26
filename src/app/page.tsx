@@ -39,7 +39,6 @@ const Homepage: React.FC = () => {
         : Semesters; // Use all semesters for other branches
 
       setAvailableSemesters(availableSemesters);
-
       // Redirect to /studentlist
       router.push('/studentlist');
     }
