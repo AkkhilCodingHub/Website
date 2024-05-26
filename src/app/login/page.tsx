@@ -70,56 +70,73 @@ const Login: React.FC<LoginProps> = () => {
 
   // Render method for the Login component
   return (
-<div className="login-container bg-gray-100 flex flex-col items-center justify-center h-screen ">
-  {/* Login form with username and pin input fields */}
-  <form onSubmit={handleLogin} className="flex flex-col space-y-2">
-    <input
-      type="text"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    <input
-      type="password"
-      value={pin}
-      onChange={(e) => setPin(e.target.value)}
-      className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-      Login
-    </button>
-  </form>
+    <div className="login-container bg-gray-100 flex flex-col w-full  fixed top-0 left-0 bg-cover bg-[url('/image.jpeg')] items-center justify-center h-screen ">
+      {/* Login form with username and pin input fields */}
+      <form onSubmit={handleLogin} className="flex flex-col space-y-2">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="border border-gray-300 rounded-md text-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="password"
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          className="border border-gray-300 text-black rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Login
+        </button>
+      </form>
 
-  {/* Button to trigger the display of the admin pin popup */}
-  <button onClick={handleShowAdminPinPopup} className="bg-gray-200 text-gray-500 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
-    Dashboard (Admin)
-  </button>
+      {/* Button to trigger the display of the admin pin popup */}
+      <button
+        onClick={handleShowAdminPinPopup}
+        className="bg-gray-500 text-gray-500 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+      >
+        Dashboard (Admin)
+      </button>
 
-  {/* Conditional rendering of the admin pin popup based on its visibility state */}
-  {showPinPopup && (
-    <div className="pin-popup fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-md shadow-md p-4 flex flex-col space-y-2">
-        <h2>Enter Admin Pin</h2>
-        <form onSubmit={handleAdminPinSubmit} className="flex flex-col space-y-2">
-          <input
-            type="password"
-            value={adminPinInput}
-            onChange={(e) => setAdminPinInput(e.target.value)}
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:offset-2 focus:ring-blue-500">
-            Submit
-          </button>
-        </form>
-        <button onClick={() => setShowPinPopup(false)} className="text-gray-500 hover:underline">Cancel</button>
-      </div>
+      {/* Conditional rendering of the admin pin popup based on its visibility state */}
+      {showPinPopup && (
+        <div className="pin-popup fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-sky-500 rounded-md shadow-md p-4 flex flex-col space-y-2">
+            <h2>Enter Admin Pin</h2>
+            <form
+              onSubmit={handleAdminPinSubmit}
+              className="flex flex-col space-y-2"
+            >
+              <input
+                type="password"
+                value={adminPinInput}
+                onChange={(e) => setAdminPinInput(e.target.value)}
+                className="border border-gray-300 text-black rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:offset-2 focus:ring-blue-500"
+              >
+                Submit
+              </button>
+            </form>
+            <button
+              onClick={() => setShowPinPopup(false)}
+              className="text-gray-500 hover:underline"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Optional rendering of the error message element */}
+      {errorRef.current && <div ref={errorRef} className="error-message"></div>}
     </div>
-  )}
-
-  {/* Optional rendering of the error message element */}
-  {errorRef.current && <div ref={errorRef} className="error-message"></div>}
-</div>
-  )
+  );
 };
 
 export default Login;
