@@ -7,21 +7,22 @@ let db: any;
 
 export async function connectToDb() {
   try {
-    mongoose.connect(process.env.mongoUri!)
+    await mongoose.connect(process.env.mongoUri!);
     const connection = mongoose.connection;
 
     connection.on('connected', () => {
-      console.log('MongoDB connection successfully');
-    })
+      console.log('MongoDB connection successfully established.');
+    });
 
     connection.on('error', (err) => {
-      console.log("MongoDB connection error-" + err);
-      process.exit();
-    })
+      console.error("MongoDB connection error: " + err);
+      process.exit(1);
+    });
 
+    return connection; // Return the connection object
   } catch (error) {
-    console.log('Something went wrong!');
-    console.log(error);
+    console.error('Failed to connect to MongoDB:', error);
+    throw error; // Rethrow the error to handle it in the calling function
   }
   
 }
@@ -31,14 +32,19 @@ interface MyConnection extends mongoose.Connection {}
 
 // Function to connect to the database and return the Mongoose connection object (recommended approach - type guard)
 export const changedb = async (): Promise<MyConnection> => {
-  const connection = await mongoose.connect(process.env.mongoUri!);
-
-  // Type guard to ensure the connection is a MyConnection
-  if (isMyConnection(connection)) {
+  try {
+    const connection = await mongoose.connect(process.env.mongoUri!);
     console.log("Connected to MongoDB");
-    return connection;
-  } else {
-    throw new Error('Unexpected connection object type');
+
+    // Type guard to ensure the connection is a MyConnection
+    if (isMyConnection(connection)) {
+      return connection;
+    } else {
+      throw new Error('Unexpected connection object type');
+    }
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", error);
+    throw error; // Rethrow the error to handle it in the calling function
   }
 };
 

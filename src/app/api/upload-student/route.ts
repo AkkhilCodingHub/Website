@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import multer, { FileFilterCallback } from 'multer';
-import { changedb } from '../../../services/mongo';
+import multer from 'multer';
+import { connectToDb } from '../../../services/mongo';
 import { Student } from '../../../types/admin';
 import ExcelJS from 'exceljs';
 
@@ -16,11 +16,7 @@ interface NextApiRequestWithFile extends NextApiRequest {
 // Middleware to handle file upload with multer
 const multerUpload = upload.single('file');
 
-/**
- * Processes the uploaded Excel file to extract student data.
- * @param buffer - The buffer containing the Excel file data.
- * @returns A promise that resolves to an array of Student objects.
- */
+// Function to process student data
 const processStudentData = async (buffer: Buffer): Promise<Student[]> => {
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer);
@@ -48,39 +44,36 @@ const processStudentData = async (buffer: Buffer): Promise<Student[]> => {
   return students;
 };
 
-/**
- * API route handler for uploading student data via an Excel file.
- * @param req - The HTTP request object.
- * @param res - The HTTP response object.
- */
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+// POST handler
+export const POST = async (req: NextApiRequestWithFile, res: NextApiResponse) => {
   console.log('Uploading student data...');
-  // Use multer to handle the file upload
   multerUpload(req as any, res as any, async (err) => {
     if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-      return res.status(500).json({ error: err.message });
+      console.error('Multer error:', err);
+      res.status(500).json({ error: err.message });
+      return;
     } else if (err) {
-      // An unknown error occurred when uploading.
-      return res.status(500).json({ error: 'Unknown error occurred when uploading.' });
+      console.error('Unknown upload error:', err);
+      res.status(500).json({ error: 'Unknown error occurred when uploading.' });
+      return;
     }
 
     const reqWithFile = req as NextApiRequestWithFile;
     if (!reqWithFile.file) {
-      return res.status(400).send('No file uploaded');
+      res.status(400).send('No file uploaded');
+      return;
     }
 
     try {
       const students = await processStudentData(reqWithFile.file.buffer);
-      const db = await changedb();
+      const db = await connectToDb();
       const collection = db.collection<Student>('students');
       await collection.insertMany(students);
       await db.close();
       res.status(200).json(students);
     } catch (error) {
-      console.error('Error processing upload:', error);
-      res.status(500).json({ error: 'Failed to process uploaded file.' });
+      console.error('Error processing upload or database operation:', error);
+      res.status(500).json({ error: 'Failed to process uploaded file or database error.' });
     }
   });
 };
-
