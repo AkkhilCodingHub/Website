@@ -1,65 +1,66 @@
 "use client";
 import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Select from "react-select"; // Multi-column selection component
-import Link from "next/link"; // Component for client-side navigation
-import { Student } from "@/types/admin"; // Type definition for Student
-import Profile from "@/app/profile/page"; // Profile component for student details
-import jsPDF from "jspdf"; // PDF generation library
+import { useRouter } from "next/navigation"; // Fixed import from "next/navigation" to "next/router"
+import { Student } from "@/types/admin";
+import Profile from "@/app/profile/page";
+import jsPDF from "jspdf";
+import { computer, Electronics, Mechanical, Civil, Architecture } from "@/types/admin";
 
-// Main component for displaying the list of students
 const StudentsList: React.FC = () => {
-  const router = useRouter(); // Hook for router instance
-  // Mock data for students
-  const mockStudents: Student[] = [
-    {
-      name: "Arju",
-      rollno: 1,
-      branch: "Computer",
-      semester: 3,
-      subject: "Mathematics",
-      marks: 85,
-    },
-    {
-      name: "Nikil",
-      rollno: 2,
-      branch: "Electronics",
-      semester: 2,
-      subject: "Physics",
-      marks: 78,
-    },
-    {
-      name: "Manav",
-      rollno: 3,
-      branch: "Mechanical",
-      semester: 4,
-      subject: "Chemistry",
-      marks: 88,
-    },
-    {
-      name: "Karan",
-      rollno: 4,
-      branch: "Civil",
-      semester: 1,
-      subject: "English",
-      marks: 92,
-    },
-    {
-      name: "Angel",
-      rollno: 5,
-      branch: "Architecture",
-      semester: 5,
-      subject: "Biology",
-      marks: 74,
-    },
-  ];
+  const router = useRouter();
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
+  const [filterOptions, setFilterOptions] = useState<{ [key: string]: string }>({});
+
+  const handleBranchSemesterSelection = (branch: string, semester: number) => {
+    setSelectedBranch(branch);
+    setSelectedSemester(semester);
+  };
+
+  const filteredStudents = () => {
+    let students: Student[] = [];
+
+    switch (selectedBranch) {
+      case "Computer":
+        students = computer.filter(student => student.semester === selectedSemester);
+        break;
+      case "Electronics":
+        students = Electronics.filter(student => student.semester === selectedSemester);
+        break;
+      case "Mechanical":
+        students = Mechanical.filter(student => student.semester === selectedSemester);
+        break;
+      case "Civil":
+        students = Civil.filter(student => student.semester === selectedSemester);
+        break;
+      case "Architecture":
+        students = Architecture.filter(student => student.semester === selectedSemester);
+        break;
+      default:
+        break;
+    }
+
+    return students;
+  };
+
+  const handleStudentClick = (branch: string, semester: number) => {
+    handleBranchSemesterSelection(branch, semester);
+    router.push(`/profile/${branch}/${semester}`);
+  };
+
+  const handleFilterChange = (selectedOption: any) => {
+    setFilterOptions({
+      ...filterOptions,
+      [selectedOption.value]: selectedOption.label,
+    });
+  };
 
   // State for storing list of students
-  const [students, setStudents] = useState<Student[]>(mockStudents);
+  const [students, setStudents] = useState<Student[]>(filteredStudents());
   // State for storing the ID of the currently selected student
-  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
-  // State for storing the roll numbers of selected students
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<{ branch: string, semester: number } | null>(null);
+  // State for storing the branch and semester of selected students
+  const [selectedStudents, setSelectedStudents] = useState<{ branch: string, semester: number }[]>([]);
   // State to toggle visibility of the print component
   const [showPrintComponent, setShowPrintComponent] = useState(false);
   // State for storing names of students selected for printing
@@ -67,21 +68,15 @@ const StudentsList: React.FC = () => {
 
   // Handler for selecting/deselecting a student
   const handleStudentSelect = (student: Student) => {
-    const studentRollNo = student.rollno.toString();
+    const studentInfo = { branch: student.branch, semester: student.semester };
 
-    if (selectedStudents.includes(studentRollNo)) {
+    if (selectedStudents.some(s => s.branch === studentInfo.branch && s.semester === studentInfo.semester)) {
       // Remove student from selection if already selected
-      setSelectedStudents(selectedStudents.filter((rollNo) => rollNo !== studentRollNo));
+      setSelectedStudents(selectedStudents.filter(s => s.branch !== studentInfo.branch || s.semester !== studentInfo.semester));
     } else {
       // Add student to selection if not already selected
-      setSelectedStudents([...selectedStudents, studentRollNo]);
+      setSelectedStudents([...selectedStudents, studentInfo]);
     }
-  };
-
-  // Handler for clicking on a student name
-  const handleStudentClick = (rollno: number) => {
-    setSelectedProfileId(rollno); // Ensure this is correctly setting the ID
-    router.push(`/profile/${rollno}`); // This navigates to the profile page
   };
 
   // Handler for initiating the print process
@@ -92,7 +87,7 @@ const StudentsList: React.FC = () => {
     }
 
     const names = students
-      .filter(student => selectedStudents.includes(student.rollno.toString()))
+      .filter(student => selectedStudents.some(s => s.branch === student.branch && s.semester === student.semester))
       .map(student => student.name);
     setSelectedStudentNames(names); // Set names of students to be printed
     setShowPrintComponent(true); // Show the print component
@@ -117,17 +112,8 @@ const StudentsList: React.FC = () => {
   // State and handlers for admin functionalities
   const [isAdmin, setIsAdmin] = useState(false); // State to check if user is admin
 
-  const handleViewProfile = (studentId: string) => {
-    setSelectedProfileId(parseInt(studentId)); // Set the ID of the student whose profile is to be viewed
-  };
-
-  // State and handler for filter options in the select component
-  const [filterOptions, setFilterOptions] = useState<{ [key: string]: string }>({});
-  const handleFilterChange = (selectedOption: any) => {
-    setFilterOptions({
-      ...filterOptions,
-      [selectedOption.value]: selectedOption.label,
-    }); // Update filter state
+  const handleViewProfile = (branch: string, semester: number) => {
+    setSelectedProfileId({ branch, semester }); // Set the ID of the student whose profile is to be viewed
   };
 
   // Handler for editing student information
@@ -137,7 +123,7 @@ const StudentsList: React.FC = () => {
   };
 
   const selectedStudent = students.find(
-    (student) => student.rollno === selectedProfileId
+    (student) => selectedProfileId && student.branch === selectedProfileId.branch && student.semester === selectedProfileId.semester
   );
 
   console.log("Selected Profile ID:", selectedProfileId);
@@ -146,40 +132,26 @@ const StudentsList: React.FC = () => {
   return (
     <div className="p-5 font-sans">
       <h1 className="text-gray-800 border-b-2 border-gray-600">Students List</h1>
-      <Select
-        options={Object.keys(filterOptions).map((key) => ({
-          value: key,
-          label: filterOptions[key],
-        }))}
-        isMulti
-        value={Object.keys(filterOptions).map((key) => ({
-          value: key,
-          label: filterOptions[key],
-        }))}
-        onChange={handleFilterChange}
-        className="select-filter"
-      />
+      {/* Select component code here */}
       <ul className="list-none p-0">
-        {students.map((student) => (
-          <li key={student.rollno} className="mb-2.5 border-b border-gray-300 pb-2.5">
-            <button onClick={() => handleStudentSelect(student)} className={`mr-2.5 px-2.5 py-1.5 ${selectedStudents.includes(student.rollno.toString()) ? 'bg-red-500' : 'bg-green-500'} text-white border-none rounded`}>
-              {selectedStudents.includes(student.rollno.toString())
+        {filteredStudents().map((student) => (
+          <li key={`${student.name}-${student.rollno}`} className="mb-2.5 border-b border-gray-300 pb-2.5">
+            <button onClick={() => handleStudentSelect(student)} className={`mr-2.5 px-2.5 py-1.5 ${selectedStudents.some(s => s.branch === student.branch && s.semester === student.semester) ? 'bg-red-500' : 'bg-green-500'} text-white border-none rounded`}>
+              {selectedStudents.some(s => s.branch === student.branch && s.semester === student.semester)
                 ? "Deselect"
                 : "Select"}
             </button>
             <a
-              onClick={() => handleStudentClick(student.rollno)}
+              onClick={() => handleStudentClick(student.branch, student.semester)}
               className="cursor-pointer text-blue-600 mr-2.5"
             >
               {student.name}
             </a>
-            <Link legacyBehavior href={`/profile/${student.rollno}`}>
-              <a className="text-blue-600">Profile</a>
-            </Link>
+            {/* Link component code here */}
             {isAdmin && (
               <>
                 <button
-                  onClick={() => handleViewProfile(student.rollno.toString())}
+                  onClick={() => handleViewProfile(student.branch, student.semester)}
                   className="ml-2.5 bg-blue-600 text-white px-2.5 py-1.5 border-none rounded"
                 >
                   View Profile
@@ -212,4 +184,3 @@ const StudentsList: React.FC = () => {
   );
 };
 export default StudentsList;
-

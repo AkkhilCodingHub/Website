@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { branches, Semester, Student, Semesters } from '@/types/admin';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // For routing
-import { getTeachers } from '@/types/dbstruct';
+
  
 // Homepage component using React functional component syntax
 const Homepage: React.FC = () => {
@@ -39,8 +39,6 @@ const Homepage: React.FC = () => {
         : Semesters; // Use all semesters for other branches
 
       setAvailableSemesters(availableSemesters);
-      // Redirect to /studentlist
-      router.push('/studentlist');
     }
   };
 
@@ -50,8 +48,6 @@ const Homepage: React.FC = () => {
 
     if (selectedBranch && semester > 0) { // Only fetch if branch is selected and semester is valid
       fetchStudents(selectedBranch, semester);
-      // Redirect to /studentlist
-      router.push('/studentlist');
     } else {
       setStudents([]); // Clear students if no branch or invalid semester is selected
     }
@@ -171,7 +167,7 @@ const Homepage: React.FC = () => {
                 key={student.rollno}
                 className="flex items-center justify-between border-b border-gray-200 py-2"
               >
-                <Link legacyBehavior href={`/studentlist/${student.rollno}`}>
+                <Link legacyBehavior href={`/profile/${student.branch}/${student.semester}`}>
                   <a className="text-gray-700">{student.name}</a>
                 </Link>
                 <span className="text-gray-500">

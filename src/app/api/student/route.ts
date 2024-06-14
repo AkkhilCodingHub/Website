@@ -1,28 +1,36 @@
-import { changedb } from '../../../services/mongo';
 import { Student } from '../../../types/admin';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { computer, Electronics, Mechanical, Civil, Architecture } from '../../../types/admin';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[]>) {
   const { branch, semester } = req.query;
 
   try {
-    // Replace with your actual MongoDB connection details (environment variables recommended)
-    const db = changedb();
-    const collection = (await db).collection<Student>('students') ; // Typed collection
+    let students: Student[] = [];
 
-    // Replace with your actual filtering logic for branch and semester
-    const students = await collection.find({ 
-        branch: String(branch), 
-        semester: Number(semester) 
-    }).toArray();
+    switch (branch) {
+      case 'Computer':
+        students = computer.filter(student => student.semester === Number(semester));
+        break;
+      case 'Electronics':
+        students = Electronics.filter(student => student.semester === Number(semester));
+        break;
+      case 'Mechanical':
+        students = Mechanical.filter(student => student.semester === Number(semester));
+        break;
+      case 'Civil':
+        students = Civil.filter(student => student.semester === Number(semester));
+        break;
+      case 'Architecture':
+        students = Architecture.filter(student => student.semester === Number(semester));
+        break;
+      default:
+        break;
+    }
 
     res.status(200).json(students); // Send fetched student data as typed JSON response
   } catch (error) {
     console.error('Error fetching students:', error);
-    res.status(500).send(newFunction()); // Handle errors
-  } 
-}
-
-function newFunction(): Student[] {
-throw new Error('Error retrieving students');
+    res.status(500).json([]); // Handle errors and send an empty array as JSON
+  }
 }
