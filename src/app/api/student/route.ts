@@ -1,28 +1,26 @@
-import { changedb } from '../../../services/mongo';
-import { Student } from '../../../types/admin';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
+import { connectToDb } from '@/utils/services/mongo';
+import { StudentModel } from '@/types/admin';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Student[]>) {
-  const { branch, semester } = req.query;
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const branch = searchParams.get('branch');
+  const semester = searchParams.get('semester');
+
+  if (!branch || !semester) {
+    return NextResponse.json({ error: 'Branch and semester are required' }, { status: 400 });
+  }
 
   try {
-    // Replace with your actual MongoDB connection details (environment variables recommended)
-    const db = changedb();
-    const collection = (await db).collection<Student>('students') ; // Typed collection
+    await connectToDb();
+    const students = await StudentModel.find({ branch, semester: parseInt(semester) })
+      .select('name rollno semester')
+      .sort('rollno')
+      .lean();
 
-    // Replace with your actual filtering logic for branch and semester
-    const students = await collection.find({ 
-        branch: String(branch), 
-        semester: Number(semester) 
-    }).toArray();
-
-    res.status(200).json(students); // Send fetched student data as typed JSON response
+    return NextResponse.json(students);
   } catch (error) {
     console.error('Error fetching students:', error);
-    res.status(500).send(newFunction()); // Handle errors
-  } 
-}
-
-function newFunction(): Student[] {
-throw new Error('Error retrieving students');
+    return NextResponse.json({ error: 'An error occurred while fetching students' }, { status: 500 });
+  }
 }
