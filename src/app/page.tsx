@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Branch, Semester, fetchBranchesAndSemesters } from '@/types/admin';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const Homepage: React.FC = () => {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
@@ -83,6 +84,13 @@ const Homepage: React.FC = () => {
               </select>
             </div>
           )}
+        </div>
+        <div className="mt-8 text-center">
+          <Link href="/upload">
+            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+              Upload Student Data
+            </button>
+          </Link>
         </div>
       </div>
     </div>

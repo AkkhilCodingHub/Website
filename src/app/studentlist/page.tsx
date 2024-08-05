@@ -1,17 +1,17 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Student } from '@/types/admin';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-const StudentList: React.FC = () => {
+const StudentListContent: React.FC = () => {
+  const searchParams = useSearchParams();
+  const branch = searchParams?.get('branch') ?? '';
+  const semester = searchParams?.get('semester') ?? '';
+
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const searchParams = useSearchParams();
-  const branch = searchParams.get('branch');
-  const semester = searchParams.get('semester');
 
   useEffect(() => {
     async function fetchStudents() {
@@ -22,15 +22,15 @@ const StudentList: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`/api/students?branch=${branch}&semester=${semester}`);
+        const response = await fetch(`/api/students?branch=${encodeURIComponent(branch)}&semester=${encodeURIComponent(semester)}`);
         if (!response.ok) {
           throw new Error('Failed to fetch students');
         }
         const data = await response.json();
         setStudents(data);
-        setLoading(false);
       } catch (err) {
         setError('An error occurred while fetching students');
+      } finally {
         setLoading(false);
       }
     }
@@ -49,7 +49,7 @@ const StudentList: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-4">
-        Student List - {branch} (Semester {semester})
+        Student List - {branch || 'Unknown Branch'} (Semester {semester || 'Unknown'})
       </h1>
       {students.length === 0 ? (
         <p>No students found for this branch and semester.</p>
@@ -61,7 +61,7 @@ const StudentList: React.FC = () => {
               className="flex items-center justify-between bg-white shadow rounded-lg p-4"
             >
               <div>
-                <Link href={`/studentlist/${student.rollno}`}>
+                <Link href={`/studentlist/${encodeURIComponent(student.rollno)}`}>
                   <span className="text-blue-600 hover:underline">{student.name}</span>
                 </Link>
                 <span className="ml-4 text-gray-600">Roll No: {student.rollno}</span>
@@ -77,6 +77,14 @@ const StudentList: React.FC = () => {
         </button>
       </Link>
     </div>
+  );
+};
+
+const StudentList: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <StudentListContent />
+    </Suspense>
   );
 };
 
