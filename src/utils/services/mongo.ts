@@ -5,7 +5,11 @@ let connection: mongoose.Connection | null = null;
 export async function connectToDb() {
   try {
     if (!connection) {
-      await mongoose.connect(process.env.mongoUri!);
+      const mongoUri = process.env.MONGODB_URI;
+      if (!mongoUri) {
+        throw new Error('MONGODB_URI is not defined in the environment variables');
+      }
+      await mongoose.connect(mongoUri);
       connection = mongoose.connection;
 
       connection.on('connected', () => {
@@ -13,14 +17,13 @@ export async function connectToDb() {
       });
 
       connection.on('error', (err) => {
-        console.log("MongoDB connection error-" + err);
-        process.exit();
+        console.error("MongoDB connection error:", err);
+        process.exit(1);
       });
     }
     return connection;
   } catch (error) {
-    console.log('Something went wrong!');
-    console.log(error);
+    console.error('Failed to connect to MongoDB:', error);
     throw error;
   }
 }

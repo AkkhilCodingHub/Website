@@ -8,35 +8,51 @@ const Homepage: React.FC = () => {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
 
   useEffect(() => {
-    async function loadBranchesAndSemesters() {
-      const { branches, semesters } = await fetchBranchesAndSemesters();
-      setBranches(branches);
-      setSemesters(semesters);
+    async function initialize() {
+      try {
+        const response = await fetch('/api/check-data');
+        const { hasData } = await response.json();
+
+        if (!hasData) {
+          router.push('/upload?noData=true');
+          return;
+        }
+
+        const { branches, semesters } = await fetchBranchesAndSemesters();
+        setBranches(branches);
+        setSemesters(semesters);
+      } catch (error) {
+        console.error('Error initializing:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-    loadBranchesAndSemesters();
-  }, []);
+
+    initialize();
+  }, [router]);
 
   const handleBranchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value;
-    if (selectedValue !== null) {
-      setSelectedBranch(selectedValue);
-    }
+    setSelectedBranch(event.target.value);
   };
 
   const handleSemesterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const semester = parseInt(event.target.value);
-
-    if (selectedBranch && semester > 0) {
+    const semester = event.target.value;
+    if (selectedBranch && semester) {
       router.push(`/studentlist?branch=${selectedBranch}&semester=${semester}`);
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-cover bg-no-repeat bg-center bg-url bg-[url('/image.jpeg')]">
+    <div className="min-h-screen bg-cover bg-no-repeat bg-center bg-[url('/image.jpeg')]">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-center text-white mb-8">
           Student Management System
@@ -49,7 +65,7 @@ const Homepage: React.FC = () => {
             <select
               id="branch"
               name="branch"
-              value={selectedBranch !== null ? selectedBranch : ""}
+              value={selectedBranch ?? ""}
               onChange={handleBranchChange}
               className="border border-gray-300 bg-sky-600 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
